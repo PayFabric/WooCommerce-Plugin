@@ -74,47 +74,32 @@ class payFabric_Builder extends payFabric_RequestBase {
     }
     
     protected function setAddress() {
-        if (strlen($this->billingId) > 0) {
-            $this->_data["billing"]["id"] = $this->billingId;
-        }
-        if (strlen($this->billingName) > 0) {
-            $this->_data["billing"]["name"] = $this->billingId;
-        }
-        if (strlen($this->billingAddress) > 0) {
-            $this->_data["billing"]["address"] = $this->billingAddress;
-        }
-        if (strlen($this->billingAddress2) > 0) {
-            $this->_data["billing"]["address2"] = $this->billingAddress2;
-        }
-        if (strlen($this->billingDistrict) > 0) {
-            $this->_data["billing"]["district"] = $this->billingDistrict;
-        }
         if (strlen($this->billingCity) > 0) {
-            $this->_data["billing"]["city"] = $this->billingCity;
-        }
-        if (strlen($this->billingState) > 0) {
-            $this->_data["billing"]["state"] = $this->billingState;
-        }
-        if (strlen($this->billingPostalCode) > 0) {
-            $this->_data["billing"]["postalcode"] = $this->billingPostalCode;
+            $this->_data['Document']["DefaultBillTo"]["City"] = $this->billingCity;
         }
         if (strlen($this->billingCountry) > 0) {
-            $this->_data["billing"]["country"] = $this->billingCountry;
+            $this->_data['Document']["DefaultBillTo"]["Country"] = $this->billingCountry;
+        }
+        if (strlen($this->customerId) > 0) {
+            $this->_data['Document']["DefaultBillTo"]["Customer"] = $this->customerId;
         }
         if (strlen($this->billingEmail) > 0) {
-            $this->_data["billing"]["email"] = $this->billingEmail;
+            $this->_data['Document']["DefaultBillTo"]["Email"] = $this->billingEmail;
         }
-        if (strlen($this->billingCompanyName) > 0) {
-            $this->_data["billing"]["companyName"] = $this->billingCompanyName;
+        if (strlen($this->billingAddress1) > 0) {
+            $this->_data['Document']["DefaultBillTo"]["Line1"] = $this->billingAddress1;
         }
-        if (strlen($this->billingType) > 0) {
-            $this->_data["billing"]["type"] = $this->billingType;
+        if (strlen($this->billingAddress2) > 0) {
+            $this->_data['Document']["DefaultBillTo"]["Line2"] = $this->billingAddress2;
         }
-        if (strlen($this->billingGender) > 0) {
-            $this->_data["billing"]["gender"] = $this->billingGender;
+        if (strlen($this->billingPhone) > 0) {
+            $this->_data['Document']["DefaultBillTo"]["Phone"] = $this->billingPhone;
         }
-        if (strlen($this->billingBirthDate) > 0) {
-            $this->_data["billing"]["birthDate"] = $this->billingBirthDate;
+        if (strlen($this->billingState) > 0) {
+            $this->_data['Document']["DefaultBillTo"]["State"] = $this->billingState;
+        }
+        if (strlen($this->billingPostalCode) > 0) {
+            $this->_data['Document']["DefaultBillTo"]["Zip"] = $this->billingPostalCode;
         }
 
         if (strlen($this->shippingCity) > 0) {

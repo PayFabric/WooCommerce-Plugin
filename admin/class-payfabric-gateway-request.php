@@ -88,6 +88,18 @@ class PayFabric_Gateway_Request
             "shippingPhone" => $order->get_billing_phone(), // Optional - Customer phone number, use the billing phone as shipping phone because there is no shipping phone //
             "shippingState" => $order->get_shipping_state(), // Optional - Customer state with 2 characters //
             "shippingPostalCode" => $order->get_shipping_postcode(), // Optional - Customer zip code //
+            //Billing Information
+            'billingFirstName' => $order->get_billing_first_name(),
+            'billingLastName'  => $order->get_billing_last_name(),
+            'billingCompany'    => $order->get_billing_company(),
+            'billingAddress1'  => $order->get_billing_address_1(),
+            'billingAddress2'  => $order->get_billing_address_2(),
+            'billingCity'       => $order->get_billing_city(),
+            'billingState'      => $order->get_billing_state(),
+            'billingPostalCode'   => $order->get_billing_postcode(),
+            'billingCountry'    => $order->get_billing_country(),
+            'billingEmail'      => $order->get_billing_email(),
+            'billingPhone'      => $order->get_billing_phone(),
             //level2/3
             'freightAmount'    => $order->get_shipping_total(),
             'taxAmount' => $order->get_total_tax(),

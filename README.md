@@ -1,5 +1,5 @@
 ## PayFabric gateway plugin for WooCommerce 
-Requires WooCommerce Version: 3.0.0 or higher
+Requires WooCommerce Version: 3.0.0 or higher 
 
 ## Description 
 PayFabric gateway plugin for WooCommerce provides eCommerce extensions that allow you to add payment processing capabilities into supported eCommerce platforms without any custom coding.

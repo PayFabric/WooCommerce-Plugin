@@ -184,7 +184,7 @@ class PayFabric extends WC_Payment_Gateway {
 
             echo $payfabric_request->generate_payfabric_gateway_form($order, $this->testmode);
         }catch (Exception $e){
-            wc_add_notice($e->getMessage(), 'error');
+            wc_print_notice($e->getMessage(), 'error');
         }
     }
     //http://localhost/wordpress/index.php/shop/?wcapi=payfabric&order_id=266&TrxKey=21053100702444

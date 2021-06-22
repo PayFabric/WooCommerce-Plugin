@@ -311,7 +311,7 @@ class PayFabric_Gateway_Request
                 $payfabric_form[] = 'function handleResult(data) {console.log(data);';
                 $payfabric_form[] = 'if(data.RespStatus == "Approved"){';
                 $payfabric_form[] = 'document.getElementById("TrxKey").value = data.TrxKey;';
-                $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ location.reload();}';
+                $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 3000);}';
                 $payfabric_form[] = '}';
                 $payfabric_form[] = 'new payfabricpayments({';
                 foreach ($payfabric_cashier_args as $key => $value) {

@@ -3,7 +3,7 @@ class payFabric_RequestBase {
     
     protected $version = '1.0.0';
     protected $timeout = 60;
-    protected static $sslVerifyPeer = 1;
+    protected static $sslVerifyPeer = 0;
     protected static $sslVerifyHost = 2;
     public static $logger;
     public static $loggerSev;

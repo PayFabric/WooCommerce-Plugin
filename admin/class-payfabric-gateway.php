@@ -407,7 +407,7 @@ class PayFabric extends WC_Payment_Gateway {
             $testmode = isset( $post_data[ $api_testmode ] ) ? $post_data[ $api_testmode ] : null;
             $payment_action = isset( $post_data[ $api_payment_action ] ) ? $post_data[ $api_payment_action ] : null;
             if(empty($merchant_id) || empty($merchant_password)){
-                WC_Admin_Settings::add_error(__('Device ID and Password can not be blank','payfabric-gateway-woocommerce'));
+                WC_Admin_Settings::add_error(__('Device ID or Password cannot be blank','payfabric-gateway-woocommerce'));
             }else{
                 include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);

@@ -3,7 +3,7 @@
 - Void a Pre-Authorized Transaction
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/api/reference/21051700697035?trxtype=Void
+- https://sandbox.payfabric.com/payment/api/reference/21051700697035?trxtype=Void
 
 **Method：**
 - GET 

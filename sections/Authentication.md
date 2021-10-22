@@ -4,7 +4,7 @@
 
 ```php
       // Setup the HTTP request.
-        $httpUrl = "https://dev-us2.payfabric.com/payment/api/transaction/create";
+        $httpUrl = "https://sandbox.payfabric.com/payment/api/transaction/create";
         $httpHeader = Array(
                 "Content-Type: application/json",
                 "authorization: " . DEVICE_ID . "|" . DEVICE_PASSWORD);        

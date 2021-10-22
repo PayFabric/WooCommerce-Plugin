@@ -3,7 +3,7 @@
 - The PayFabric hosted payment page is used for embedding the payment page into your application to allow your users to process a transaction.
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/web/transaction/ResponsiveProcess
+- https://sandbox.payfabric.com/payment/web/transaction/ResponsiveProcess
   
 **Method：**
 - GET 

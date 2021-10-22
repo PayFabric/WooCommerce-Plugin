@@ -3,7 +3,7 @@
 - Create a token to be used to embed the payment page from PayFabric
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/api/jwt/create
+- https://sandbox.payfabric.com/payment/api/jwt/create
   
 **Method：**
 - POST 

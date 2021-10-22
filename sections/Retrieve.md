@@ -3,7 +3,7 @@
 - Retrieve the specified transaction
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/api/transaction/21051700697007
+- https://sandbox.payfabric.com/payment/api/transaction/21051700697007
 
 **Method：**
 - GET 

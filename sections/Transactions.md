@@ -3,7 +3,7 @@
 - Create an authorization or sale transaction and save it to the PayFabric server
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/api/transaction/create
+- https://sandbox.payfabric.com/payment/api/transaction/create
   
 **Method：**
 - POST 

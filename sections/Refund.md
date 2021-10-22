@@ -3,7 +3,7 @@
 - Refund a Transaction
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/api/transaction/process
+- https://sandbox.payfabric.com/payment/api/transaction/process
   
 **Method：**
 - POST 

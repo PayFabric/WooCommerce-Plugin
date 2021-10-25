@@ -3,7 +3,7 @@
 - Capture a Pre-Authorized Transaction
 
 **Request URL：** 
-- https://dev-us2.payfabric.com/payment/api/reference/21051300696177?trxtype=Ship
+- https://sandbox.payfabric.com/payment/api/reference/21051300696177?trxtype=Ship
 
 **Method：**
 - GET 

@@ -297,7 +297,7 @@ class PayFabric_Gateway_Request
             //api_payment_modes : array('Iframe','Redirect')
             case '0':
                 $payfabric_cashier_args = array(
-                    'environment' => $sandbox ? (stripos(TESTGATEWAY,'SANDBOX')!==FALSE ? ('SANDBOX' ? stripos(TESTGATEWAY,'QA')!==FALSE : 'QA') : 'DEV-US2') : 'LIVE',
+                    'environment' => $sandbox ? (stripos(TESTGATEWAY,'DEV-US2')===FALSE ? (stripos(TESTGATEWAY,'QA')===FALSE ? 'SANDBOX' : 'QA') : 'DEV-US2') : 'LIVE',
                     'target' => 'cashierDiv',
                     'displayMethod' => 'IN_PLACE',
                     'session' => $responseToken->Token,

@@ -271,6 +271,7 @@ class PayFabric_Gateway_Request
         if(empty($shop_page_url)){
             $shop_page_url = site_url();
         }
+        $shop_page_url = $this->gateway->get_return_url( $order );
         $data = $this->get_payfabric_gateway_post_args($order);
         if ($this->gateway->api_payment_action){
             $maxiPago->creditCardAuth($data);
@@ -304,7 +305,7 @@ class PayFabric_Gateway_Request
                     'disableCancel' => true
                 );
                 $payfabric_form[] = '<form id="payForm" action="'.$shop_page_url;
-                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="'.$order->get_id().'"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/></form>';
+                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="'.$order->get_id().'"/><input type="hidden" name="key" value="'.$order->get_order_key().'"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/></form>';
                 $payfabric_form[] = '<div id="cashierDiv"></div>';
                 $payfabric_form[] = '<script type="text/javascript" src="'. $jsUrl . '"></script>';
                 $payfabric_form[] = '<script type="text/javascript">';

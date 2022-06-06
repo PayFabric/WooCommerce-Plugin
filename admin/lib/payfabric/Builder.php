@@ -162,4 +162,16 @@ class payFabric_Builder extends payFabric_RequestBase {
         }
     }
 
+    protected function setParams(){
+        if (strlen($this->Key) > 0) {
+            $this->_data["Key"] = $this->Key;
+        }else{
+            throw new InvalidArgumentException("[PayFabric Class] Field 'Key' cannot be null.");
+        }
+        $this->setOrder();
+        //set level 2/3
+        $this->setItens();
+        unset($this->_data["Type"]);
+    }
+
 }

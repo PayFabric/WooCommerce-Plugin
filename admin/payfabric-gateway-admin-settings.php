@@ -101,7 +101,8 @@ if($integration_show){
         'default' => 0,
         'options' => array(
             __('Iframe', 'payfabric-gateway-woocommerce'),
-            __('Redirect', 'payfabric-gateway-woocommerce')
+            __('Redirect', 'payfabric-gateway-woocommerce'),
+            __('Direct', 'payfabric-gateway-woocommerce')
         )
     );
 }

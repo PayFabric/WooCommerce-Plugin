@@ -54,7 +54,7 @@ class PayFabric_Gateway_Request
         include_once('lib/payments.php');
     }
     //Generate transaction data
-    private function get_payfabric_gateway_post_args($order)
+    public function get_payfabric_gateway_post_args($order)
     {
        
         // to get only the site's domain url name to assign to the parameter allowOriginUrl . 
@@ -267,10 +267,11 @@ class PayFabric_Gateway_Request
         $cashierUrl = $maxiPago->cashierUrl;
         $jsUrl = $maxiPago->jsUrl;
 
-        $shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
-        if(empty($shop_page_url)){
-            $shop_page_url = site_url();
-        }
+//        $shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
+//        if(empty($shop_page_url)){
+//            $shop_page_url = site_url();
+//        }
+        $shop_page_url = $this->gateway->get_return_url($order);
         $data = $this->get_payfabric_gateway_post_args($order);
         if ($this->gateway->api_payment_action){
             $maxiPago->creditCardAuth($data);
@@ -304,7 +305,7 @@ class PayFabric_Gateway_Request
                     'disableCancel' => true
                 );
                 $payfabric_form[] = '<form id="payForm" action="'.$shop_page_url;
-                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="'.$order->get_id().'"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/></form>';
+                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="'.$order->get_id().'"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" name="key" value="'.$order->get_order_key().'"/></form>';
                 $payfabric_form[] = '<div id="cashierDiv"></div>';
                 $payfabric_form[] = '<script type="text/javascript" src="'. $jsUrl . '"></script>';
                 $payfabric_form[] = '<script type="text/javascript">';
@@ -326,7 +327,7 @@ class PayFabric_Gateway_Request
             default:
                 $form_data = array();
                 $form_data['token'] = $responseToken->Token;
-                $form_data['successUrl'] = $shop_page_url . "?wcapi=payfabric&order_id=" . $order->get_id();
+                $form_data['successUrl'] = $shop_page_url . "&wcapi=payfabric&order_id=" . $order->get_id();
                 $form_html = '';
                 $form_html .= '<form action=' . $cashierUrl. ' method="get">';
                 foreach ($form_data as $key => $value) {
@@ -334,6 +335,98 @@ class PayFabric_Gateway_Request
                 }
                 $form_html .= '<button type="submit" class="button alt">'.__( 'Pay with PayFabric', 'payfabric-gateway-woocommerce' ).'</button> </form>';
                 return $form_html;
+        }
+    }
+    //Integrate direct payment UI before place order
+    public function generate_payfabric_gateway_iframe($sandbox)
+    {
+        $maxiPago = new payments;
+        $maxiPago->setLogger(PayFabric_LOG_DIR, PayFabric_LOG_SEVERITY);
+
+        // Set your credentials before any other transaction methods
+        $maxiPago->setCredentials($this->gateway->api_merchant_id, $this->gateway->api_password);
+
+        $maxiPago->setDebug(PayFabric_DEBUG);
+        $maxiPago->setEnvironment($sandbox);
+        $jsUrl = $maxiPago->jsUrl;
+
+        $data = array(
+            "Amount" => WC()->cart->total, // REQUIRED - Transaction amount in US format //
+            "Currency" => get_woocommerce_currency(),
+            "customerId" => get_current_user_id()// wp_get_current_user();
+        );
+        if ($this->gateway->api_payment_action) {
+            $maxiPago->creditCardAuth($data);
+        } else {
+            $maxiPago->creditCardSale($data);
+        }
+        $responseTran = json_decode($maxiPago->response);
+        if (!$responseTran->Key) {
+            if (is_object(payFabric_RequestBase::$logger)) {
+                payFabric_RequestBase::$logger->logCrit($maxiPago->response);
+            }
+            throw new UnexpectedValueException($maxiPago->response, 503);
+        }
+        $maxiPago->token(array("Audience" => "PaymentPage", "Subject" => $responseTran->Key));
+        $responseToken = json_decode($maxiPago->response);
+        WC()->session->set('transaction_key', $responseTran->Key);
+        WC()->session->set('transaction_token', $responseToken->Token);
+        $payfabric_cashier_args = array(
+            'environment' => $sandbox ? (stripos(TESTGATEWAY, 'DEV-US2') === FALSE ? (stripos(TESTGATEWAY, 'QA') === FALSE ? 'SANDBOX' : 'QA') : 'DEV-US2') : 'LIVE',
+            'target' => 'cashierDiv',
+            'displayMethod' => 'IN_PLACE',
+            'session' => $responseToken->Token,
+            'disableCancel' => true
+        );
+
+        $payfabric_form[] = '<form id="payForm" action="';
+        $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="wc_order_id" name="order_id" value=""/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" id="key" name="key" value=""/></form>';
+        $payfabric_form[] = '<div id="cashierDiv"></div>';
+        $payfabric_form[] = '<script type="text/javascript" src="' . $jsUrl . '"></script>';
+        $payfabric_form[] = '<script type="text/javascript">';
+        $payfabric_form[] = 'function handleResult(data) {console.log(data);';
+        $payfabric_form[] = 'if(data.RespStatus == "Approved"){';
+        $payfabric_form[] = 'document.getElementById("TrxKey").value = data.TrxKey;';
+        $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 3000);}';
+        $payfabric_form[] = '}';
+        $payfabric_form[] = 'new payfabricpayments({';
+        foreach ($payfabric_cashier_args as $key => $value) {
+            $payfabric_form[] = esc_attr($key) . ' : "' . esc_attr($value) . '",';
+        }
+        $payfabric_form[] = 'successCallback:handleResult,';
+        $payfabric_form[] = 'failureCallback:handleResult,';
+        $payfabric_form[] = '});';
+        $payfabric_form[] = 'var ajaxurl = "'. admin_url( 'admin-ajax.php' ) .'";</script>';
+
+        return implode('', $payfabric_form);
+    }
+    //Do the payment update process
+    public function do_update_process($sandbox = false, $order)
+    {
+        if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
+            || $this->gateway->api_password === null || $this->gateway->api_password === '') {
+            throw new UnexpectedValueException('Miss merchant configuration info', 503);
+        }
+
+        $maxiPago = new payments;
+        $maxiPago->setLogger(PayFabric_LOG_DIR, PayFabric_LOG_SEVERITY);
+
+        // Set your credentials before any other transaction methods
+        $maxiPago->setCredentials($this->gateway->api_merchant_id, $this->gateway->api_password);
+
+        $maxiPago->setDebug(PayFabric_DEBUG);
+        $maxiPago->setEnvironment($sandbox);
+
+        $data = array_merge(array(
+            "Key" => WC()->session->get('transaction_key')
+        ), $this->get_payfabric_gateway_post_args($order));
+        $maxiPago->creditCardUpdate($data);
+
+        $result = json_decode($maxiPago->response);
+        if ($result->Result) {
+            return true;
+        } else {
+            throw new UnexpectedValueException(!empty($maxiPago->response) ? $maxiPago->response : __('Update error!'));
         }
     }
     //Do the payment refund process
@@ -349,7 +442,7 @@ class PayFabric_Gateway_Request
             // Set your credentials before any other transaction methods
             $maxiPago->setCredentials($this->gateway->api_merchant_id, $this->gateway->api_password);
 
-            $maxiPago->setDebug(false);
+            $maxiPago->setDebug(PayFabric_DEBUG);
             $maxiPago->setEnvironment($sandbox);
 
             $maxiPago->creditCardRefund(

@@ -53,6 +53,7 @@ class PayFabric extends WC_Payment_Gateway {
         $this->id = 'payfabric';
         $this->method_title = __('PayFabric', 'payfabric-gateway-woocommerce');
         $this->method_description = __('PayFabric gateway sends customers to PayFabric to enter their payment information and redirects back to shop when the payment was completed.', 'payfabric-gateway-woocommerce');
+        //$this->order_button_text = __('Proceed to PayFabric', 'payfabric-gateway-woocommerce');
 
         $this->title = $this->get_option('title');
         $this->description = $this->get_option('description');
@@ -72,6 +73,25 @@ class PayFabric extends WC_Payment_Gateway {
         $this->supports = array(
             'refunds'
         );
+    }
+
+    /**
+     * Payment form on checkout page
+     */
+    public function payment_fields() {
+        try {
+            wp_enqueue_script(strtolower($this->plugin_name), plugin_dir_url(__FILE__) . 'assets/js/payfabric-gateway-woocommerce.js', ['jquery'], $this->version, true);
+            wp_enqueue_style(strtolower($this->plugin_name), plugin_dir_url(__FILE__) . 'assets/css/payfabric-gateway-woocommerce.css', array(), $this->version, 'all');
+            $description = $this->get_description();
+            if ($description) {
+                echo apply_filters('wc_payfabric_description', wpautop(wp_kses_post($description)), $this->id);
+            }
+            include_once('class-payfabric-gateway-request.php');
+            $payfabric_request = new PayFabric_Gateway_Request($this);
+            echo $payfabric_request->generate_payfabric_gateway_iframe($this->testmode);
+        } catch (Exception $e) {
+            wc_print_notice($e->getMessage(), 'error');
+        }
     }
 
     /**
@@ -104,23 +124,38 @@ class PayFabric extends WC_Payment_Gateway {
      * @since    1.0.0
      */
     public function init_form_fields() {
+        //If direct payment mode then show payment feilds directly
+        if(2 == $this->api_payment_modes)   $this->has_fields = true;
         $this->form_fields = include('payfabric-gateway-admin-settings.php');
     }
 
     /**
      * Process the payment and return the result.
      *
-     * @since    1.0.0
-     * @param    int $order_id
+     * @param int $order_id
      * @return   array
+     * @since    1.0.0
      */
     public function process_payment($order_id) {
         $order = wc_get_order($order_id);
 
+        //If not a direct payment mode then go to order pay page
+        if (2 != $this->api_payment_modes) {
+            return array(
+                'result' => 'success',
+                'redirect' => $order->get_checkout_payment_url(true)
+            );
+        }
+
+        include_once('class-payfabric-gateway-request.php');
+        $payfabric_request = new PayFabric_Gateway_Request($this);
+        $payfabric_request->do_update_process($this->testmode, $order);
         return array(
             'result' => 'success',
-            'redirect' => $order->get_checkout_payment_url(true)
+            'redirect' => $this->get_return_url($order),
+            'key' => $order->get_order_key()
         );
+
     }
 
     /**
@@ -417,5 +452,15 @@ class PayFabric extends WC_Payment_Gateway {
         }catch (Exception $e){
             WC_Admin_Settings::add_error( $e->getMessage() );
         }
+    }
+
+    public function get_session()
+    {
+        echo wp_send_json_success(
+            array(
+                'token' => WC()->session->get('transaction_token')
+            )
+        );
+        wp_die();
     }
 }

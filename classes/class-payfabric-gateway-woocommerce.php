@@ -47,7 +47,9 @@ class Payfabric_Gateway_Woocommerce {
         add_action('woocommerce_update_options_payment_gateways_' . $plugin_admin->id, array($plugin_admin, 'process_admin_options'));//Update gateway
         add_action('woocommerce_receipt_payfabric', array($plugin_admin, 'receipt_page'));//Generate button or iframe ready to pay on receipt page
         add_action('wp', array($plugin_admin, 'payfabric_response_handler'));//Payment response handler get
-        add_action('wp', array($plugin_admin, 'set_wc_notice'));//Set a notice with the payment status on the order success page
+        //add_action('wp', array($plugin_admin, 'set_wc_notice'));//Set a notice with the payment status on the order success page
+        add_action( 'wp_ajax_get_session', array($plugin_admin, 'get_session'));
+        add_action( 'wp_ajax_nopriv_get_session', array($plugin_admin, 'get_session'));
         add_action( 'woocommerce_admin_order_data_after_shipping_address', array($plugin_admin, 'show_evo_transaction_id') );//Customize admin order detail page to show transaction ID
         add_action( 'woocommerce_api_payfabric', array($plugin_admin, 'handle_call_back') );//Payment response handler if a post request
         //         add_action( 'woocommerce_order_status_on-hold_to_processing', array( $plugin_admin, 'capture_payment' ) );

@@ -179,6 +179,9 @@ class payFabric_RequestBase {
                 case "refund":
                     $this->setRefund();
                     break;
+                case "update":
+                    $this->setParams();
+                    break;
                 default:
                     break;
             }

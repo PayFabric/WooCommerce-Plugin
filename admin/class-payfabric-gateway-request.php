@@ -327,7 +327,7 @@ class PayFabric_Gateway_Request
             default:
                 $form_data = array();
                 $form_data['token'] = $responseToken->Token;
-                $form_data['successUrl'] = $shop_page_url . "?wcapi=payfabric&order_id=" . $order->get_id();
+                $form_data['successUrl'] = $shop_page_url . "&wcapi=payfabric&order_id=" . $order->get_id();
                 $form_html = '';
                 $form_html .= '<form action=' . $cashierUrl. ' method="get">';
                 foreach ($form_data as $key => $value) {

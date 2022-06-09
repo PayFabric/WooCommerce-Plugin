@@ -73,7 +73,7 @@ class PayFabric_Gateway_Request
         }
         $level3_data = $this->get_level3_data_from_order($order);
         return array(
-    		"referenceNum" => $order->get_order_number(), // REQUIRED - Merchant internal order number //
+    		"referenceNum" => $order->get_id(), // REQUIRED - Merchant internal order id //
             "Amount" => $order->get_total(), // REQUIRED - Transaction amount in US format //
             "Currency" => get_woocommerce_currency(), // Optional - Valid only for ChasePaymentech multi-currecy setup. Please see full documentation for more info
             "pluginName" => "WooCommerce PayFabric Gateway",

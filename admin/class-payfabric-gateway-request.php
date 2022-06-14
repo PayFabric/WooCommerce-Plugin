@@ -279,7 +279,7 @@ class PayFabric_Gateway_Request
             $maxiPago->creditCardSale($data);
         }
         $responseTran = json_decode($maxiPago->response);
-        if(!$responseTran->Key){
+        if(empty($responseTran->Key)){
             if (is_object(payFabric_RequestBase::$logger)) {
                 payFabric_RequestBase::$logger->logCrit($maxiPago->response);
             }
@@ -287,7 +287,7 @@ class PayFabric_Gateway_Request
         }
         $maxiPago->token(array("Audience" => "PaymentPage" , "Subject" => $responseTran->Key));
         $responseToken= json_decode($maxiPago->response);
-        if(!$responseToken->Token) {
+        if(empty($responseToken->Token)) {
             if (is_object(payFabric_RequestBase::$logger)) {
                 payFabric_RequestBase::$logger->logCrit($maxiPago->response);
             }
@@ -451,7 +451,7 @@ class PayFabric_Gateway_Request
             $maxiPago->creditCardSale($data);
         }
         $responseTran = json_decode($maxiPago->response);
-        if(!$responseTran->Key){
+        if(empty($responseTran->Key)){
             if (is_object(payFabric_RequestBase::$logger)) {
                 payFabric_RequestBase::$logger->logCrit($maxiPago->response);
             }

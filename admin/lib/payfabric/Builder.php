@@ -54,8 +54,8 @@ class payFabric_Builder extends payFabric_RequestBase {
         }else{
             throw new InvalidArgumentException("[PayFabric Class] Field 'Type' cannot be null.");
         }
-        if (strlen($this->referenceNum) > 0) {
-            $this->_data["TrxUserDefine1"] = $this->referenceNum;
+        if (strlen($this->id) > 0) {
+            $this->_data["TrxUserDefine1"] = $this->id;
         }
         if (isset($this->Amount) && is_numeric($this->Amount)) {
             $this->_data["Amount"] = $this->Amount;

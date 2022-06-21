@@ -73,6 +73,7 @@ class PayFabric_Gateway_Request
         }
         $level3_data = $this->get_level3_data_from_order($order);
         return array(
+            "id" => $order->get_id(), // REQUIRED - Merchant internal order id //
     		"referenceNum" => $order->get_order_number(), // REQUIRED - Merchant internal order number //
             "Amount" => $order->get_total(), // REQUIRED - Transaction amount in US format //
             "Currency" => get_woocommerce_currency(), // Optional - Valid only for ChasePaymentech multi-currecy setup. Please see full documentation for more info
@@ -267,11 +268,12 @@ class PayFabric_Gateway_Request
         $cashierUrl = $maxiPago->cashierUrl;
         $jsUrl = $maxiPago->jsUrl;
 
-//        $shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
-//        if(empty($shop_page_url)){
-//            $shop_page_url = site_url();
-//        }
-        $shop_page_url = $this->gateway->get_return_url($order);
+        $shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
+        if(empty($shop_page_url)){
+            $shop_page_url = site_url();
+        }
+        $shop_page_url = $this->gateway->get_return_url( $order );
+
         $data = $this->get_payfabric_gateway_post_args($order);
         if ($this->gateway->api_payment_action){
             $maxiPago->creditCardAuth($data);
@@ -279,7 +281,7 @@ class PayFabric_Gateway_Request
             $maxiPago->creditCardSale($data);
         }
         $responseTran = json_decode($maxiPago->response);
-        if(!$responseTran->Key){
+        if(empty($responseTran->Key)){
             if (is_object(payFabric_RequestBase::$logger)) {
                 payFabric_RequestBase::$logger->logCrit($maxiPago->response);
             }
@@ -287,7 +289,7 @@ class PayFabric_Gateway_Request
         }
         $maxiPago->token(array("Audience" => "PaymentPage" , "Subject" => $responseTran->Key));
         $responseToken= json_decode($maxiPago->response);
-        if(!$responseToken->Token) {
+        if(empty($responseToken->Token)) {
             if (is_object(payFabric_RequestBase::$logger)) {
                 payFabric_RequestBase::$logger->logCrit($maxiPago->response);
             }
@@ -305,7 +307,7 @@ class PayFabric_Gateway_Request
                     'disableCancel' => true
                 );
                 $payfabric_form[] = '<form id="payForm" action="'.$shop_page_url;
-                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="'.$order->get_id().'"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" name="key" value="'.$order->get_order_key().'"/></form>';
+                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="'.$order->get_id().'"/><input type="hidden" name="key" value="'.$order->get_order_key().'"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/></form>';
                 $payfabric_form[] = '<div id="cashierDiv"></div>';
                 $payfabric_form[] = '<script type="text/javascript" src="'. $jsUrl . '"></script>';
                 $payfabric_form[] = '<script type="text/javascript">';
@@ -543,7 +545,7 @@ class PayFabric_Gateway_Request
             $maxiPago->creditCardSale($data);
         }
         $responseTran = json_decode($maxiPago->response);
-        if(!$responseTran->Key){
+        if(empty($responseTran->Key)){
             if (is_object(payFabric_RequestBase::$logger)) {
                 payFabric_RequestBase::$logger->logCrit($maxiPago->response);
             }

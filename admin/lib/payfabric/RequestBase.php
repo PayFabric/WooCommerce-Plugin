@@ -192,4 +192,12 @@ class payFabric_RequestBase {
             throw $e;
         }
     }
+
+    /**
+     * @return mixed
+     */
+    public function __get($var)
+    {
+        return null;
+    }
 }

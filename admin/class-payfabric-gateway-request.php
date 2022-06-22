@@ -59,7 +59,7 @@ class PayFabric_Gateway_Request
     public function get_payfabric_gateway_post_args($order)
     {
 
-        // to get only the site's domain url name to assign to the parameter allowOriginUrl . 
+        // to get only the site's domain url name to assign to the parameter allowOriginUrl .
         //otherwise it will encounter a CORS issue when wordpress deployed inside a subfolder of the web server.
 
         $parse_result = parse_url(site_url());
@@ -301,14 +301,18 @@ class PayFabric_Gateway_Request
         $maxiPago->setEnvironment($sandbox);
         $cashierUrl = $maxiPago->cashierUrl;
         $jsUrl = $maxiPago->jsUrl;
+        $return_url = $this->gateway->get_return_url($order);
 
-        $shop_page_url = get_permalink(wc_get_page_id('shop'));
-        if (empty($shop_page_url)) {
-            $shop_page_url = site_url();
+        if (2 == $this->gateway->api_payment_modes) {
+            $data = array(
+                "Amount" => WC()->cart->total, // REQUIRED - Transaction amount in US format //
+                "Currency" => get_woocommerce_currency(),
+                "customerId" => get_current_user_id()// wp_get_current_user();
+            );
+        } else {
+            $data = $this->get_payfabric_gateway_post_args($order);
         }
-        $shop_page_url = $this->gateway->get_return_url($order);
 
-        $data = $this->get_payfabric_gateway_post_args($order);
         if ($this->gateway->api_payment_action) {
             $maxiPago->creditCardAuth($data);
         } else {
@@ -331,15 +335,15 @@ class PayFabric_Gateway_Request
         }
 
         switch ($this->gateway->api_payment_modes) {
-            //api_payment_modes : array('Iframe','Redirect')
+            //api_payment_modes : array('Iframe','Redirect', 'direct')
             case '0':
-                $payfabric_form[] = '<form id="payForm" action="' . $shop_page_url;
+                $payfabric_form[] = '<form id="payForm" action="' . $return_url;
                 $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="' . $order->get_id() . '"/><input type="hidden" name="key" value="' . $order->get_order_key() . '"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/></form>';
                 return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox)));
-            default:
+            case '1':
                 $form_data = array();
                 $form_data['token'] = $responseToken->Token;
-                $form_data['successUrl'] = $shop_page_url . "&wcapi=payfabric&order_id=" . $order->get_id();
+                $form_data['successUrl'] = $return_url . "&wcapi=payfabric&order_id=" . $order->get_id();
                 $form_html = '';
                 $form_html .= '<form action=' . $cashierUrl . ' method="get">';
                 foreach ($form_data as $key => $value) {
@@ -347,49 +351,15 @@ class PayFabric_Gateway_Request
                 }
                 $form_html .= '<button type="submit" class="button alt">' . __('Pay with PayFabric', 'payfabric-gateway-woocommerce') . '</button> </form>';
                 return $form_html;
+            case '2':
+                WC()->session->set('transaction_key', $responseTran->Key);
+                WC()->session->set('transaction_token', $responseToken->Token);
+                $payfabric_form[] = '<script type="text/javascript">';
+                $payfabric_form[] = 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
+                $payfabric_form[] = '<form id="payForm" action="';
+                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="wc_order_id" name="order_id" value=""/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" id="key" name="key" value=""/></form>';
+                return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox)));
         }
-    }
-
-    //Integrate direct payment UI before place order
-    public function generate_payfabric_gateway_direct($sandbox)
-    {
-        $maxiPago = new payments;
-        $maxiPago->setLogger(PayFabric_LOG_DIR, PayFabric_LOG_SEVERITY);
-
-        // Set your credentials before any other transaction methods
-        $maxiPago->setCredentials($this->gateway->api_merchant_id, $this->gateway->api_password);
-
-        $maxiPago->setDebug(PayFabric_DEBUG);
-        $maxiPago->setEnvironment($sandbox);
-        $jsUrl = $maxiPago->jsUrl;
-
-        $data = array(
-            "Amount" => WC()->cart->total, // REQUIRED - Transaction amount in US format //
-            "Currency" => get_woocommerce_currency(),
-            "customerId" => get_current_user_id()// wp_get_current_user();
-        );
-        if ($this->gateway->api_payment_action) {
-            $maxiPago->creditCardAuth($data);
-        } else {
-            $maxiPago->creditCardSale($data);
-        }
-        $responseTran = json_decode($maxiPago->response);
-        if (!$responseTran->Key) {
-            if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logCrit($maxiPago->response);
-            }
-            throw new UnexpectedValueException($maxiPago->response, 503);
-        }
-        $maxiPago->token(array("Audience" => "PaymentPage", "Subject" => $responseTran->Key));
-        $responseToken = json_decode($maxiPago->response);
-        WC()->session->set('transaction_key', $responseTran->Key);
-        WC()->session->set('transaction_token', $responseToken->Token);
-
-        $payfabric_form[] = '<script type="text/javascript">';
-        $payfabric_form[] = 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
-        $payfabric_form[] = '<form id="payForm" action="';
-        $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="wc_order_id" name="order_id" value=""/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" id="key" name="key" value=""/></form>';
-        return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox)));
     }
 
     //Do the payment update process

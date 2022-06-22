@@ -14,7 +14,7 @@ jQuery(function ($) {
             };
             var token = getQueryString(document.getElementById('payfabric-sdk-iframe').src, 'token');
             var postData = {
-                action : 'get_session'
+                action: 'get_session'
             };
             $.post(ajaxurl, postData, function (response) {
                 if (token == response.data.token) {
@@ -31,8 +31,8 @@ jQuery(function ($) {
                         BillZipCode: $("#billing_postcode").val(),
                     };
                     window.frames['payfabric-sdk-iframe'].postMessage(JSON.stringify(message), '*');
-                }else{
-                    $('.woocommerce-error').html( 'Error processing checkout. Please refresh the page and try again.'); // eslint-disable-line max-len
+                } else {
+                    $('.woocommerce-error').html('Error processing checkout. Please refresh the page and try again.'); // eslint-disable-line max-len
                     $('html, body').animate({
                         scrollTop: ($('form.checkout').offset().top - 100)
                     }, 1000);

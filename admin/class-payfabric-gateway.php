@@ -454,13 +454,19 @@ class PayFabric extends WC_Payment_Gateway {
         }
     }
 
-    public function get_session()
-    {
+    public function get_session() {
         echo wp_send_json_success(
             array(
                 'token' => WC()->session->get('transaction_token')
             )
         );
         wp_die();
+    }
+
+    public function my_orders_actions($actions){
+        if (2 == $this->api_payment_modes) {
+            unset($actions['pay']);
+        }
+        return $actions;
     }
 }

@@ -50,6 +50,8 @@ class Payfabric_Gateway_Woocommerce {
         //add_action('wp', array($plugin_admin, 'set_wc_notice'));//Set a notice with the payment status on the order success page
         add_action( 'wp_ajax_get_session', array($plugin_admin, 'get_session'));
         add_action( 'wp_ajax_nopriv_get_session', array($plugin_admin, 'get_session'));
+        add_action( 'woocommerce_my_account_my_orders_actions', array($plugin_admin, 'my_orders_actions'));
+
         add_action( 'woocommerce_admin_order_data_after_shipping_address', array($plugin_admin, 'show_evo_transaction_id') );//Customize admin order detail page to show transaction ID
         add_action( 'woocommerce_api_payfabric', array($plugin_admin, 'handle_call_back') );//Payment response handler if a post request
         //         add_action( 'woocommerce_order_status_on-hold_to_processing', array( $plugin_admin, 'capture_payment' ) );

@@ -156,7 +156,7 @@ class PayFabric_Gateway_Request
     }
 
     //Execute payment synchronization callback
-    public function generate_check_request_form($order, $merchantTxId, $sandbox = false)
+    public function generate_check_request_form($merchantTxId, $sandbox = false)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
             || $this->gateway->api_password === null || $this->gateway->api_password === '') {
@@ -338,12 +338,12 @@ class PayFabric_Gateway_Request
             //api_payment_modes : array('Iframe','Redirect', 'direct')
             case '0':
                 $payfabric_form[] = '<form id="payForm" action="' . $return_url;
-                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" name="order_id" value="' . $order->get_id() . '"/><input type="hidden" name="key" value="' . $order->get_order_key() . '"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/></form>';
+                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" name="key" value="' . $order->get_order_key() . '"/></form>';
                 return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox)));
             case '1':
                 $form_data = array();
                 $form_data['token'] = $responseToken->Token;
-                $form_data['successUrl'] = $return_url . "&wcapi=payfabric&order_id=" . $order->get_id();
+                $form_data['successUrl'] = $return_url . "&wcapi=payfabric";
                 $form_html = '';
                 $form_html .= '<form action=' . $cashierUrl . ' method="get">';
                 foreach ($form_data as $key => $value) {
@@ -357,7 +357,7 @@ class PayFabric_Gateway_Request
                 $payfabric_form[] = '<script type="text/javascript">';
                 $payfabric_form[] = 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
                 $payfabric_form[] = '<form id="payForm" action="';
-                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="wc_order_id" name="order_id" value=""/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" id="key" name="key" value=""/></form>';
+                $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" id="key" name="key" value=""/></form>';
                 return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox)));
         }
     }

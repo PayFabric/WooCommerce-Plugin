@@ -88,8 +88,8 @@ class PayFabric extends WC_Payment_Gateway
                 echo wpautop(wptexturize($description)); // @codingStandardsIgnoreLine.
             }
             if (2 == $this->api_payment_modes) {
-                wp_enqueue_style(strtolower($this->plugin_name), plugin_dir_url(__FILE__) . 'assets/css/payfabric-gateway-woocommerce.css', array(), $this->version, 'all');
-                wp_enqueue_script(strtolower($this->plugin_name), plugin_dir_url(__FILE__) . 'assets/js/payfabric-gateway-woocommerce.js', ['jquery'], $this->version, true);
+                $this->enqueue_styles();
+                $this->enqueue_js();
                 include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 echo $payfabric_request->generate_payfabric_gateway_form(null, $this->testmode);
@@ -168,13 +168,23 @@ class PayFabric extends WC_Payment_Gateway
     }
 
     /**
-     * Register the stylesheets for frontend redirect loading box.
+     * Register the stylesheets for frontend Iframe UI
      *
      * @since    1.0.0
      */
     private function enqueue_styles()
     {
         wp_enqueue_style(strtolower($this->plugin_name), plugin_dir_url(__FILE__) . 'assets/css/payfabric-gateway-woocommerce.css', array(), $this->version, 'all');
+    }
+
+    /**
+     * Register the stylesheets for frontend Iframe JS
+     *
+     * @since    2.0.0
+     */
+    private function enqueue_js()
+    {
+        wp_enqueue_script(strtolower($this->plugin_name), plugin_dir_url(__FILE__) . 'assets/js/payfabric-gateway-woocommerce.js', ['jquery'], $this->version, true);
     }
 
     /**
@@ -235,24 +245,15 @@ class PayFabric extends WC_Payment_Gateway
         }
     }
 
-    //http://localhost/wordpress/index.php/shop/?wcapi=payfabric&order_id=266&TrxKey=21053100702444
+    //http://localhost/wordpress/index.php/checkout/order-received/721/?wcapi=payfabric&order_id=721&TrxKey=22062301958907&key=wc_order_jopIHjPEamN1y
     public function payfabric_response_handler()
     {
         try {
             if (isset($_GET['wcapi']) && isset($_GET['TrxKey']) && empty($_GET['wc-ajax'])) {
-                if (isset($_GET['order_id'])) {
-                    $order_id = $_GET['order_id'];
-                } else {
-                    return __('Bad identifier.', 'payfabric-gateway-woocommerce');
-                }
                 $merchantTxId = $_GET['TrxKey'];
                 include_once('class-payfabric-gateway-request.php');
-
-                $this->enqueue_styles();
-                sleep(1.5); //the wordpress system has a cache system, sometimes the query will not call DB directly, this is to delay the calling
-                $order = wc_get_order($order_id);
                 $payfabric_request = new PayFabric_Gateway_Request($this);
-                $payfabric_request->generate_check_request_form($order, $merchantTxId, $this->testmode);
+                $payfabric_request->generate_check_request_form($merchantTxId, $this->testmode);
             }
         } catch (Exception $e) {
             return $e->getMessage();
@@ -316,10 +317,8 @@ class PayFabric extends WC_Payment_Gateway
             }
 
             include_once('class-payfabric-gateway-request.php');
-
-            $order = wc_get_order($order_id);
             $payfabric_request = new PayFabric_Gateway_Request($this);
-            $payfabric_request->generate_check_request_form($order, $merchantTxId, $this->testmode);
+            $payfabric_request->generate_check_request_form($merchantTxId, $this->testmode);
         } catch (Exception $e) {
             return $e->getMessage();
         }

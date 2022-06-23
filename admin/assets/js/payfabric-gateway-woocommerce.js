@@ -32,7 +32,7 @@ jQuery(function ($) {
                     };
                     window.frames['payfabric-sdk-iframe'].postMessage(JSON.stringify(message), '*');
                 } else {
-                    $('.woocommerce-error').html('Error processing checkout. Please refresh the page and try again.'); // eslint-disable-line max-len
+                    $('.woocommerce-error').html('Sorry, your transaction has expired. Please refresh the page and try again.'); // eslint-disable-line max-len
                     $('html, body').animate({
                         scrollTop: ($('form.checkout').offset().top - 100)
                     }, 1000);

@@ -259,14 +259,15 @@ class PayFabric_Gateway_Request
 //        header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK', true, 200);
     }
 
-    public function generate_payfabric_gateway_iframe($jsUrl, $token, $sandbox)
+    public function generate_payfabric_gateway_iframe($jsUrl, $token, $sandbox, $acceptedPaymentMethods = array())
     {
         $payfabric_cashier_args = array(
             'environment' => $sandbox ? (stripos(TESTGATEWAY, 'DEV-US2') === FALSE ? (stripos(TESTGATEWAY, 'QA') === FALSE ? 'SANDBOX' : 'QA') : 'DEV-US2') : 'LIVE',
             'target' => 'cashierDiv',
             'displayMethod' => 'IN_PLACE',
             'session' => $token,
-            'disableCancel' => true
+            'disableCancel' => true,
+            'acceptedPaymentMethods'=> $acceptedPaymentMethods
         );
         $payfabric_form[] = '<div id="cashierDiv"></div>';
         $payfabric_form[] = '<script type="text/javascript" src="' . $jsUrl . '"></script>';
@@ -278,7 +279,8 @@ class PayFabric_Gateway_Request
         $payfabric_form[] = '}';
         $payfabric_form[] = 'new payfabricpayments({';
         foreach ($payfabric_cashier_args as $key => $value) {
-            $payfabric_form[] = esc_attr($key) . ' : "' . esc_attr($value) . '",';
+            if (is_array($value)) $payfabric_form[] = esc_attr($key) . ' : ' . json_encode($value) . ',';
+            else    $payfabric_form[] = esc_attr($key) . ' : "' . esc_attr($value) . '",';
         }
         $payfabric_form[] = 'successCallback:handleResult,';
         $payfabric_form[] = 'failureCallback:handleResult,';
@@ -352,13 +354,14 @@ class PayFabric_Gateway_Request
                 $form_html .= '<button type="submit" class="button alt">' . __('Pay with PayFabric', 'payfabric-gateway-woocommerce') . '</button> </form>';
                 return $form_html;
             case '2':
+                $acceptedPaymentMethods = array("CreditCard","ECheck");
                 WC()->session->set('transaction_key', $responseTran->Key);
                 WC()->session->set('transaction_token', $responseToken->Token);
                 $payfabric_form[] = '<script type="text/javascript">';
                 $payfabric_form[] = 'var ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
                 $payfabric_form[] = '<form id="payForm" action="';
                 $payfabric_form[] = '" method="get"><input type="hidden" name="wcapi" value="payfabric"/><input type="hidden" id="TrxKey" name="TrxKey" value=""/><input type="hidden" id="key" name="key" value=""/></form>';
-                return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox)));
+                return implode('', array_merge($payfabric_form, $this->generate_payfabric_gateway_iframe($jsUrl, $responseToken->Token, $sandbox, $acceptedPaymentMethods)));
         }
     }
 

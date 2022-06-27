@@ -50,7 +50,7 @@ class PayFabric extends WC_Payment_Gateway
     {
 
         $this->plugin_name = 'PayFabric-gateway-woocommerce';
-        $this->version = '1.1.0';
+        $this->version = '2.0.0';
 
         $this->id = 'payfabric';
         $this->method_title = __('PayFabric', 'payfabric-gateway-woocommerce');

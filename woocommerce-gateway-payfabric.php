@@ -3,7 +3,7 @@
 /**
  * Plugin Name: WooCommerce PayFabric Gateway
  * Description: WooCommerce PayFabric Gateway integration.
- * Version: 1.1.0
+ * Version: 2.0.0
  */
 
 /**

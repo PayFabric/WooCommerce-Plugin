@@ -56,12 +56,8 @@ class PayFabric_Gateway_Request
     }
 
     //Generate transaction data
-    public function get_payfabric_gateway_post_args($order)
+    private function get_payfabric_gateway_post_args($order)
     {
-
-        // to get only the site's domain url name to assign to the parameter allowOriginUrl .
-        //otherwise it will encounter a CORS issue when wordpress deployed inside a subfolder of the web server.
-
         $parse_result = parse_url(site_url());
         if (isset($parse_result['port'])) {
             $allowOriginUrl = $parse_result['scheme'] . "://" . $parse_result['host'] . ":" . $parse_result['port'];
@@ -73,14 +69,14 @@ class PayFabric_Gateway_Request
         if ($ip == '::1') {
             $ip = '127.0.0.1';
         }
-        $level3_data = $this->get_level3_data_from_order($order);
+
         return array(
             "id" => $order->get_id(), // REQUIRED - Merchant internal order id //
             "referenceNum" => $order->get_order_number(), // REQUIRED - Merchant internal order number //
             "Amount" => $order->get_total(), // REQUIRED - Transaction amount in US format //
-            "Currency" => get_woocommerce_currency(), // Optional - Valid only for ChasePaymentech multi-currecy setup. Please see full documentation for more info
-            "pluginName" => "WooCommerce PayFabric Gateway",
-            "pluginVersion" => $this->gateway->version,
+            "Currency" => get_woocommerce_currency(), // REQUIRED - Transaction amount currency
+            "pluginName" => "WooCommerce PayFabric Gateway", // Optional - plugin name
+            "pluginVersion" => $this->gateway->version, // Optional - plugin name
             //Shipping Information
             "shippingCity" => $order->get_shipping_city(), // Optional - Customer city //
             "shippingCountry" => $order->get_shipping_country(), // Optional - Customer country code per ISO 3166-2 //
@@ -106,7 +102,7 @@ class PayFabric_Gateway_Request
             //level2/3
             'freightAmount' => $order->get_shipping_total(),
             'taxAmount' => $order->get_total_tax(),
-            'lineItems' => $level3_data,
+            'lineItems' => $this->get_level3_data_from_order($order),
             //Optional
             'allowOriginUrl' => $allowOriginUrl,
             "merchantNotificationUrl" => $this->notify_url . '?order_id=' . $order->get_id(),
@@ -208,36 +204,13 @@ class PayFabric_Gateway_Request
                     // Reduce stock levels
                     wc_reduce_stock_levels($order_id);
                 }
-            } else {
-                $message = __('Thank you for shopping with us.<br />Your payment is in progress.', 'payfabric-gateway-woocommerce');
-                $message_type = 'success';
-                $payfabric_message = array(
-                    'message' => $message,
-                    'message_type' => $message_type
-                );
-                // Empty cart
-                if (function_exists('WC')) {
-                    WC()->cart->empty_cart();
-                }
-                update_post_meta($order_id, '_payfabric_gateway_message', $payfabric_message);
-                //Do not handle these order status in the plugin system
-                //header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK', true, 200);
-                return;
             }
         } else {
             if ($order_status != 'failed') {
                 $order->update_status('failed', sprintf(__('Card payment failed.', 'payfabric-gateway-woocommerce')));
             }
-            $payfabric_message = array(
-                'message' => __('Card payment failed.', 'payfabric-gateway-woocommerce') . __('Order ID:', 'payfabric-gateway-woocommerce') . $order->get_id() . '.' . __('Transaction ID:', 'payfabric-gateway-woocommerce') . $merchantTxId,
-                'message_type' => 'error'
-            );
-            update_post_meta($order_id, '_payfabric_gateway_message', $payfabric_message);
-            $order->save();
-            //header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK', true, 200);
             return;
         }
-
 
         // Empty cart
         if (function_exists('WC')) {
@@ -246,20 +219,10 @@ class PayFabric_Gateway_Request
 
         //save the EVO transaction ID into the database
         update_post_meta($order->get_id(), '_transaction_id', $merchantTxId);
-
-        $message = __('Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.', 'payfabric-gateway-woocommerce');
-        $message .= '<br />' . __('Order ID:', 'payfabric-gateway-woocommerce') . $order->get_id() . '. ' . __('Transaction ID:', 'payfabric-gateway-woocommerce') . $merchantTxId;
-        $message_type = 'success';
-        $payfabric_message = array(
-            'message' => $message,
-            'message_type' => $message_type
-        );
-        update_post_meta($order_id, '_payfabric_gateway_message', $payfabric_message);
-        $order->save();
-//        header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK', true, 200);
     }
 
-    public function generate_payfabric_gateway_iframe($jsUrl, $token, $sandbox, $acceptedPaymentMethods = array())
+    //Include payfabric gateway js sdk in HTML
+    private function generate_payfabric_gateway_iframe($jsUrl, $token, $sandbox, $acceptedPaymentMethods = array())
     {
         $payfabric_cashier_args = array(
             'environment' => $sandbox ? (stripos(TESTGATEWAY, 'DEV-US2') === FALSE ? (stripos(TESTGATEWAY, 'QA') === FALSE ? 'SANDBOX' : 'QA') : 'DEV-US2') : 'LIVE',
@@ -275,7 +238,7 @@ class PayFabric_Gateway_Request
         $payfabric_form[] = 'function handleResult(data) {console.log(data);';
         $payfabric_form[] = 'if(data.RespStatus == "Approved"){';
         $payfabric_form[] = 'document.getElementById("TrxKey").value = data.TrxKey;';
-        $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 3000);}';
+        $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 5000); }';
         $payfabric_form[] = '}';
         $payfabric_form[] = 'new payfabricpayments({';
         foreach ($payfabric_cashier_args as $key => $value) {
@@ -290,7 +253,7 @@ class PayFabric_Gateway_Request
         return $payfabric_form;
     }
 
-    //Integrate PayFabric Cashier UI
+    //Integrate PayFabric Cashier UI ready to pay
     public function generate_payfabric_gateway_form($order, $sandbox)
     {
         $maxiPago = new payments;
@@ -365,7 +328,7 @@ class PayFabric_Gateway_Request
         }
     }
 
-    //Do the payment update process
+    //Do the payment update process after place order
     public function do_update_process($sandbox = false, $order)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
@@ -396,7 +359,7 @@ class PayFabric_Gateway_Request
     }
 
     //Do the payment refund process
-    public function do_refund_process($sandbox = false, $order, $merchantTxId, $amount)
+    public function do_refund_process($sandbox = false, $merchantTxId, $amount)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
             || $this->gateway->api_password === null || $this->gateway->api_password === '') {
@@ -495,7 +458,7 @@ class PayFabric_Gateway_Request
         }
     }
 
-    //Do the payment VOID process
+    //Do the payment gateway check
     public function do_check_gateway($sandbox = false, $api_merchant_id, $api_password, $payment_action)
     {
         $maxiPago = new payments;

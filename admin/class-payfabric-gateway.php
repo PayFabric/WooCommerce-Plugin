@@ -90,7 +90,6 @@ class PayFabric extends WC_Payment_Gateway
             if (2 == $this->api_payment_modes) {
                 $this->enqueue_styles();
                 $this->enqueue_js();
-                include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 echo $payfabric_request->generate_payfabric_gateway_form(null, $this->testmode);
             }
@@ -151,7 +150,6 @@ class PayFabric extends WC_Payment_Gateway
 
         //If direct payment mode then do update process
         if (2 == $this->api_payment_modes) {
-            include_once('class-payfabric-gateway-request.php');
             $payfabric_request = new PayFabric_Gateway_Request($this);
             $payfabric_request->do_update_process($this->testmode, $order);
             return array(
@@ -199,30 +197,6 @@ class PayFabric extends WC_Payment_Gateway
         return $methods;
     }
 
-
-    /**
-     * Set a Woocommerce notice with the payment status on the order received page
-     *
-     * @since    1.0.0
-     */
-    public function set_wc_notice()
-    {
-        if (isset($_GET['wcapi']) && isset($_GET['order_id']) && empty($_GET['wc-ajax'])) {
-            $order_id = absint($_GET['order_id']);
-            $order = wc_get_order($order_id);
-            $payment_method = $order->get_payment_method();
-            if ('payfabric' == strtolower($payment_method)) {
-                $payfabric_message = get_post_meta($order_id, '_payfabric_gateway_message', true);
-                if (!empty($payfabric_message)) {
-                    $message = $payfabric_message['message'];
-                    $message_type = $payfabric_message['message_type'];
-                    wc_add_notice($message, $message_type);
-                    delete_post_meta($order_id, '_payfabric_gateway_message');
-                }
-            }
-        }
-    }
-
     /**
      * Generate form ready to pay
      *
@@ -232,8 +206,6 @@ class PayFabric extends WC_Payment_Gateway
     public function receipt_page($order_id)
     {
         try {
-            include_once('class-payfabric-gateway-request.php');
-
             $this->enqueue_styles();
 
             $order = wc_get_order($order_id);
@@ -251,7 +223,6 @@ class PayFabric extends WC_Payment_Gateway
         try {
             if (isset($_GET['wcapi']) && isset($_GET['TrxKey']) && empty($_GET['wc-ajax'])) {
                 $merchantTxId = $_GET['TrxKey'];
-                include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 $payfabric_request->generate_check_request_form($merchantTxId, $this->testmode);
             }
@@ -282,15 +253,14 @@ class PayFabric extends WC_Payment_Gateway
             if (!$transaction_id) {
                 return new WP_Error('invalid_order', 'Invalid transaction ID');
             }
-            include_once('class-payfabric-gateway-request.php');
             $payfabric_request = new PayFabric_Gateway_Request($this);
-            return $payfabric_request->do_refund_process($this->testmode, $order, $transaction_id, $amount);
+            return $payfabric_request->do_refund_process($this->testmode, $transaction_id, $amount);
         } catch (Exception $e) {
             return $e->getMessage();
         }
     }
 
-    //the method to response to the Gateway callback when the user complete the payment
+    //the method to response to the Gateway post callback when the user complete the payment
     public function handle_call_back()
     {
         try {
@@ -316,7 +286,6 @@ class PayFabric extends WC_Payment_Gateway
                 return __('Bad identifier.', 'payfabric-gateway-woocommerce');
             }
 
-            include_once('class-payfabric-gateway-request.php');
             $payfabric_request = new PayFabric_Gateway_Request($this);
             $payfabric_request->generate_check_request_form($merchantTxId, $this->testmode);
         } catch (Exception $e) {
@@ -337,7 +306,6 @@ class PayFabric extends WC_Payment_Gateway
             $old_wc = version_compare(WC_VERSION, '3.0', '<');
             $payment_status = $old_wc ? get_post_meta($order_id, '_payment_status', true) : $order->get_meta('_payment_status', true);
             if ($merchantTxId && 'on-hold' == $payment_status) {
-                include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 $amount = $order->get_total();
                 $payfabric_request->do_capture_process($this->testmode, $order, $merchantTxId, $amount);
@@ -430,7 +398,6 @@ class PayFabric extends WC_Payment_Gateway
             $old_wc = version_compare(WC_VERSION, '3.0', '<');
             $payment_status = $old_wc ? get_post_meta($order_id, '_payment_status', true) : $order->get_meta('_payment_status', true);
             if ($merchantTxId && 'on-hold' == $payment_status) {
-                include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 $payfabric_request->do_void_process($this->testmode, $order, $merchantTxId);
             }
@@ -473,7 +440,6 @@ class PayFabric extends WC_Payment_Gateway
             if (empty($merchant_id) || empty($merchant_password)) {
                 WC_Admin_Settings::add_error(__('Device ID or Password cannot be blank', 'payfabric-gateway-woocommerce'));
             } else {
-                include_once('class-payfabric-gateway-request.php');
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 $payfabric_request->do_check_gateway($testmode, $merchant_id, $merchant_password, $payment_action);
                 parent::process_admin_options();

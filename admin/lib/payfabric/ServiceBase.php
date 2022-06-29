@@ -19,7 +19,7 @@ class payFabric_ServiceBase
             $this->credentials["merchantId"] = $mid;
             $this->credentials["merchantKey"] = $key;
             if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logNotice('Setting credentials "' . $mid . '" and "' . payFabric_RequestBase::clearForLog($key) . '"');
+                payFabric_RequestBase::$logger->logNotice('Setting credentials "' . $mid . '"');
             } else {
                 throw new InvalidArgumentException('[PayFabric Class error] Invalid credentials.', 401);
             }

@@ -12,11 +12,8 @@ jQuery(function ($) {
             $.scroll_to_notices = function (scrollElement) {
                 return;
             };
-            var token = getQueryString(document.getElementById('payfabric-sdk-iframe').src, 'token');
-            var postData = {
-                action: 'get_session'
-            };
-            $.post(ajaxurl, postData, function (response) {
+            var token = new URL(document.getElementById('payfabric-sdk-iframe').src).searchParams.get('token');
+            $.post(ajaxurl, {action: 'get_session'}, function (response) {
                 if (token == response.data.token) {
                     $("#payForm").attr('action', data.redirect);
                     $("#wc_order_id").val(data.order_id);
@@ -54,14 +51,3 @@ jQuery(function ($) {
         };
     });
 });
-// var intervalId = setInterval("checkIframe()", 1000);
-// function checkIframe() {
-//     console.log('check');
-//     window.frames['payfabric-sdk-iframe'].postMessage(JSON.stringify({action: "hide"}), '*');
-//     //setTimeout(function(){clearInterval(intervalId);}, 20000);
-// }
-
-function getQueryString(url, name) {
-    var newUrl = new URL(url)
-    return newUrl.searchParams.get(name)
-}

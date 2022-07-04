@@ -1,13 +1,15 @@
 jQuery(function ($) {
+    var timer = false;
     $('form.checkout').on("checkout_place_order_success", function (event, data) {
         if (data.key != undefined) {
-            // $.blockUI( {
-            //     message: null,
-            //     overlayCSS: {
-            //         background: '#fff',
-            //         opacity: 0.6
-            //     }
-            // } );
+            clearTimeout( timer);
+            $.blockUI( {
+                message: null,
+                overlayCSS: {
+                    background: '#fff',
+                    opacity: 0.6
+                }
+            } );
             $('form.checkout').addClass('message');
             $.scroll_to_notices = function (scrollElement) {
                 return;
@@ -36,6 +38,7 @@ jQuery(function ($) {
                     $('form.checkout').removeClass('message');
                 }
             });
+            timer = setTimeout( function(){$.unblockUI()}, 5000);
             return false;
         }
         return true;

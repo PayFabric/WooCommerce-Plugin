@@ -43,7 +43,7 @@ function init_payfabric_gateway()
      * @since    1.0.0
      */
     require plugin_dir_path(__FILE__) . 'classes/class-payfabric-gateway-woocommerce.php';
-    new Payfabric_Gateway_Woocommerce();
+    Payfabric_Gateway_Woocommerce::get_instance();
 }
 
 // Add custom action links

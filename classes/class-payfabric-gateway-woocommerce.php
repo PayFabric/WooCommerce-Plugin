@@ -11,6 +11,46 @@ if (!defined('ABSPATH')) {
 class Payfabric_Gateway_Woocommerce
 {
     /**
+     * The *Singleton* instance of this class
+     *
+     * @var Singleton
+     */
+    private static $instance;
+
+    /**
+     * Returns the *Singleton* instance of this class.
+     *
+     * @return Singleton The *Singleton* instance.
+     */
+    public static function get_instance()
+    {
+        if (null == self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Private clone method to prevent cloning of the instance of the
+     * *Singleton* instance.
+     *
+     * @return void
+     */
+    public function __clone()
+    {
+    }
+
+    /**
+     * Private unserialize method to prevent unserializing of the *Singleton*
+     * instance.
+     *
+     * @return void
+     */
+    public function __wakeup()
+    {
+    }
+
+    /**
      * Define the core functionality of the plugin.
      *
      * Load the dependencies and set the hooks for the admin area and

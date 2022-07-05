@@ -1,8 +1,6 @@
 jQuery(function ($) {
-    var timer = false;
     $('form.checkout').on("checkout_place_order_success", function (event, data) {
         if (data.key != undefined) {
-            clearTimeout( timer);
             $.blockUI( {
                 message: null,
                 overlayCSS: {
@@ -38,7 +36,6 @@ jQuery(function ($) {
                     $('form.checkout').removeClass('message');
                 }
             });
-            timer = setTimeout( function(){$.unblockUI()}, 5000);
             return false;
         }
         return true;

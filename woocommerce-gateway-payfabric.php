@@ -2,8 +2,10 @@
 
 /**
  * Plugin Name: WooCommerce PayFabric Gateway
+ * Plugin URI: https://github.com/PayFabric/WooCommerce-Plugin
  * Description: WooCommerce PayFabric Gateway integration.
  * Version: 2.0.0
+ * Author: PayFabric
  */
 
 /**

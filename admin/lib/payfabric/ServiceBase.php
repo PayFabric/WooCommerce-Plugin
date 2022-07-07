@@ -15,11 +15,11 @@ class payFabric_ServiceBase {
         try {
             $this->credentials["merchantId"] = $mid;
             $this->credentials["merchantKey"] = $key;
-            if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logNotice('Setting credentials "'.$mid.'" and "'.payFabric_RequestBase::clearForLog($key).'"');
-            }
+            // if (is_object(payFabric_RequestBase::$logger)) {
+            //     payFabric_RequestBase::$logger->logNotice('Setting credentials "'.$mid.'" and "'.payFabric_RequestBase::clearForLog($key).'"');
+            // }
 
-            else { throw new InvalidArgumentException('[PayFabric Class error] Invalid credentials.', 401); }
+            // else { throw new InvalidArgumentException('[PayFabric Class error] Invalid credentials.', 401); }
         }
         catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) { payFabric_RequestBase::$logger->logFatal($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine()); }

@@ -234,10 +234,12 @@ class PayFabric extends WC_Payment_Gateway
     //customize admin order detail page to show EVO transaction ID
     public function show_evo_transaction_id($order)
     {
-        $transaction_id = get_post_meta($order->get_id(), '_transaction_id', true);
-        if (!empty($transaction_id)) {
-            echo '<h3>' . $this->method_title . ' ID </h3>';
-            echo "<p>$transaction_id</p>";
+        if($order->get_payment_method() == 'payfabric') {
+            $transaction_id = get_post_meta($order->get_id(), '_transaction_id', true);
+            if (!empty($transaction_id)) {
+                echo '<h3>' . $this->method_title . ' ID </h3>';
+                echo "<p>$transaction_id</p>";
+            }
         }
     }
 

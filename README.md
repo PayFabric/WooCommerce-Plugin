@@ -31,7 +31,6 @@ $("#payButton").hide();
 window.removeEventListener("message", receiveMessage, false);
 var receiveMessage = function (event)
 {
-    console.log(event.data);
     var data = event.data;
     if(data.match("^\{(.+:.+,*){1,}\}$"))  data = $.parseJSON(data);
     if (data.action == 'pay' ) {

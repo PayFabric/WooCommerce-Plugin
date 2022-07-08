@@ -235,7 +235,7 @@ class PayFabric_Gateway_Request
         $payfabric_form[] = '<div id="cashierDiv"></div>';
         $payfabric_form[] = '<script type="text/javascript" src="' . $jsUrl . '"></script>';
         $payfabric_form[] = '<script type="text/javascript">';
-        $payfabric_form[] = 'function handleResult(data) {console.log(data);';
+        $payfabric_form[] = 'function handleResult(data) {';
         $payfabric_form[] = 'if(data.RespStatus == "Approved"){';
         $payfabric_form[] = 'document.getElementById("TrxKey").value = data.TrxKey;';
         $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 3000); }';

@@ -28,7 +28,7 @@ In your WooCommerce Setting:
 ```javascript
 $(".BillingContent").hide();
 $("#payButton").hide();
-window.removeEventListener("message", receiveMessage, false);
+typeof (receiveMessage) !== "undefined" && window.removeEventListener("message", receiveMessage, false);
 var receiveMessage = function (event)
 {
     var data = event.data;

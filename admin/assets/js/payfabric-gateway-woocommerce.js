@@ -6,12 +6,14 @@ jQuery(function ($) {
                 overlayCSS: {
                     background: '#fff',
                     opacity: 0.6
-                }
+                },
+                timeout:30000
             } );
             $('form.checkout').addClass('message');
             $.scroll_to_notices = function (scrollElement) {
                 return;
             };
+            if (document.getElementById('payfabric-sdk-iframe') === null)   location.reload();
             var token = new URL(document.getElementById('payfabric-sdk-iframe').src).searchParams.get('token');
             $.post(ajaxurl, {action: 'get_session'}, function (response) {
                 if (token == response.data.token) {

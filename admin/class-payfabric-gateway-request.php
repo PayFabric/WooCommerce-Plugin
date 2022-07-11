@@ -217,6 +217,14 @@ class PayFabric_Gateway_Request
             WC()->cart->empty_cart();
         }
 
+        //unset transaction key and token
+        if (!empty(WC()->session->get('transaction_key'))) {
+            unset(WC()->session->transaction_key);
+        }
+        if (!empty(WC()->session->get('transaction_token'))) {
+            unset(WC()->session->transaction_token);
+        }
+
         //save the EVO transaction ID into the database
         update_post_meta($order->get_id(), '_transaction_id', $merchantTxId);
     }
@@ -354,7 +362,7 @@ class PayFabric_Gateway_Request
         if ($result->Result) {
             return true;
         } else {
-            throw new UnexpectedValueException(!empty($maxiPago->response) ? $maxiPago->response : __('Update error!'));
+            throw new UnexpectedValueException( __('Unable to update the transaction.'));
         }
     }
 

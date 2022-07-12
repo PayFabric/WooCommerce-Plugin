@@ -95,9 +95,10 @@ if ($integration_show) {
     $admin_fields_array['api_payment_modes'] = array(
         'title' => __('Payment mode', 'payfabric-gateway-woocommerce'),
         'type' => 'select',
-        'description' => sprintf(__('For an iframe mode, the gateway payment page will be inside the shopping site.
-            For a redirect mode, the shopping site will be redirected to the gateway payment page.
-            For a direct mode, the gateway payment page will be shown directly on the checkout page and the payment is made when placing order, you must create a theme before using this mode, please refer to the guide %shere.%s '), '<a href="https://github.com/PayFabric/WooCommerce-Plugin#readme" target="_blank">', '</a>' ),
+        'description' => sprintf(__('Payment Mode controls the presentation of the Hosted Payment Page (HPP):<br>
+            Iframe: HPP is inside the shopping site page.<br>
+            Redirect: Shopping site redirects user to the HPP.<br>
+            Direct: HPP shown directly on the checkout page, payment made when placing order. (A theme is required, see %sGuide%s) '), '<a href="https://github.com/PayFabric/WooCommerce-Plugin#readme" target="_blank">', '</a>' ),
         'desc_tip' => false,
         'default' => 0,
         'options' => array(

@@ -266,25 +266,13 @@ class PayFabric extends WC_Payment_Gateway
     public function handle_call_back()
     {
         try {
-            if (isset($_GET['order_id'])) {
-                $order_id = $_GET['order_id'];
-            } else {
-                return __('Bad identifier.', 'payfabric-gateway-woocommerce');
-            }
-
             $raw_post = file_get_contents('php://input');
             $parts = parse_url($raw_post);
             parse_str($parts['path'], $query);
-            $this->logging('Gateway callback: Order ID :' . $order_id . ' .POST: ' . json_encode($query));
+            $this->logging('Gateway post callback: ' . json_encode($query));
             if (isset($query['TrxKey'])) {
                 $merchantTxId = $query['TrxKey'];
             } else {
-                return __('Bad identifier.', 'payfabric-gateway-woocommerce');
-            }
-
-            //the server will also call back the notification when  refund are made, this is to ignore the other action, only purchase
-            if ($query['action'] != 'PURCHASE' && $query['action'] != 'AUTH' && $query['action'] != 'CAPTURE') {
-                //sometimes bank transfer's callback action is CAPTURE
                 return __('Bad identifier.', 'payfabric-gateway-woocommerce');
             }
 

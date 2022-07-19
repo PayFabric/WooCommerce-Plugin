@@ -337,7 +337,7 @@ class PayFabric_Gateway_Request
     }
 
     //Do the payment update process after place order
-    public function do_update_process($sandbox = false, $order)
+    public function do_update_process($sandbox, $order)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
             || $this->gateway->api_password === null || $this->gateway->api_password === '') {
@@ -367,7 +367,7 @@ class PayFabric_Gateway_Request
     }
 
     //Do the payment refund process
-    public function do_refund_process($sandbox = false, $merchantTxId, $amount)
+    public function do_refund_process($sandbox, $merchantTxId, $amount)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
             || $this->gateway->api_password === null || $this->gateway->api_password === '') {
@@ -398,7 +398,7 @@ class PayFabric_Gateway_Request
     }
 
     //Do the payment capture process
-    public function do_capture_process($sandbox = false, $order, $merchantTxId, $amount)
+    public function do_capture_process($sandbox, $order, $merchantTxId, $amount)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
             || $this->gateway->api_password === null || $this->gateway->api_password === '') {
@@ -437,7 +437,7 @@ class PayFabric_Gateway_Request
     }
 
     //Do the payment VOID process
-    public function do_void_process($sandbox = false, $order, $merchantTxId)
+    public function do_void_process($sandbox, $order, $merchantTxId)
     {
         if ($this->gateway->api_merchant_id === null || $this->gateway->api_merchant_id === ''
             || $this->gateway->api_password === null || $this->gateway->api_password === '') {
@@ -467,7 +467,7 @@ class PayFabric_Gateway_Request
     }
 
     //Do the payment gateway check
-    public function do_check_gateway($sandbox = false, $api_merchant_id, $api_password, $payment_action)
+    public function do_check_gateway($sandbox, $api_merchant_id, $api_password, $payment_action)
     {
         $maxiPago = new payments;
         $maxiPago->setLogger(PayFabric_LOG_DIR, PayFabric_LOG_SEVERITY);

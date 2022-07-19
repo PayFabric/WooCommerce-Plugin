@@ -12,6 +12,7 @@ class Payfabric_Gateway_Woocommerce
 {
     /**
      * The *Singleton* instance of this class
+     * @since    2.0.0
      *
      * @var Singleton
      */
@@ -19,6 +20,7 @@ class Payfabric_Gateway_Woocommerce
 
     /**
      * Returns the *Singleton* instance of this class.
+     * @since    2.0.0
      *
      * @return Singleton The *Singleton* instance.
      */
@@ -33,6 +35,7 @@ class Payfabric_Gateway_Woocommerce
     /**
      * Private clone method to prevent cloning of the instance of the
      * *Singleton* instance.
+     * @since    2.0.0
      *
      * @return void
      */
@@ -43,11 +46,13 @@ class Payfabric_Gateway_Woocommerce
     /**
      * Private unserialize method to prevent unserializing of the *Singleton*
      * instance.
+     * @since    2.0.0
      *
      * @return void
      */
-    private function __wakeup()
+    public function __wakeup()
     {
+        _doing_it_wrong( __FUNCTION__, __( 'Unserializing instances of this class is forbidden.', 'payfabric-gateway-woocommerce' ), '2.0.0' );
     }
 
     /**

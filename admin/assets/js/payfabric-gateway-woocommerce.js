@@ -7,7 +7,7 @@ jQuery(function ($) {
                     background: '#fff',
                     opacity: 0.6
                 },
-                timeout:30000
+                timeout:15000
             } );
             $('form.checkout').addClass('message');
             $.scroll_to_notices = function (scrollElement) {

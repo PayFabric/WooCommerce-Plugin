@@ -36,7 +36,7 @@ class Payfabric_Gateway_Woocommerce
      *
      * @return void
      */
-    public function __clone()
+    private function __clone()
     {
     }
 
@@ -46,7 +46,7 @@ class Payfabric_Gateway_Woocommerce
      *
      * @return void
      */
-    public function __wakeup()
+    private function __wakeup()
     {
     }
 

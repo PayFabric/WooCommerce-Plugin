@@ -55,3 +55,6 @@ window.addEventListener("message", receiveMessage, false);
 * [Retrieve a Transaction](sections/Retrieve.md)
 * [Create a Token](sections/Token.md)
 * [Hosted Payment Page](sections/PaymentPage.md)
+
+## Support    
+Have a question or need help? Contact support@payfabric.com. 

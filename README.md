@@ -1,8 +1,10 @@
 ## PayFabric gateway plugin for WooCommerce 
-Requires WooCommerce Version: 3.0.0 or higher 
+Requires WooCommerce Version: 3.0.0 or higher.
+
+Requires an active PayFabric account. Development can be done on a PayFabric Sandbox account. PayFabric is an EVO Payments processing platform.
 
 ## Description 
-PayFabric gateway plugin for WooCommerce provides eCommerce extensions that allow you to add payment processing capabilities into supported eCommerce platforms without any custom coding.
+PayFabric gateway plugin for WooCommerce provides eCommerce extensions that allow you to add PayFabric payment processing capabilities into supported eCommerce platforms without any custom coding.
 
 ## Installation 
 

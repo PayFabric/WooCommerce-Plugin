@@ -60,7 +60,7 @@ class PayFabric extends WC_Payment_Gateway
         $this->title = $this->get_option('title');
         $this->description = $this->get_option('description');
         $this->testmode = 'yes' === $this->get_option('testmode', 'no');
-        $this->icon = apply_filters('payfabric-gateway-woocommerce', plugin_dir_url(__FILE__) . 'assets/images/logo.jpg');
+        $this->icon = apply_filters('payfabric-gateway-woocommerce', plugin_dir_url(__FILE__) . 'assets/images/logo.png');
         $this->api_merchant_id = $this->get_option('api_merchant_id');
         $this->api_password = $this->get_option('api_password');
         $this->api_success_status = $this->get_option('api_success_status');

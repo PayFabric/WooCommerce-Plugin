@@ -70,6 +70,18 @@ class PayFabric_Gateway_Request
             $ip = '127.0.0.1';
         }
 
+        if(!$customerId = $order->get_customer_id()){
+            $session_handler = WC()->session;
+            if ( ! $session_handler ) {
+                return '';
+            }
+            $cookie = $session_handler->get_session_cookie();
+            if ( ! $cookie ) {
+                return '';
+            }
+            $customerId = $cookie[0];
+        }
+
         return array(
             "id" => $order->get_id(), // REQUIRED - Merchant internal order id //
             "referenceNum" => $order->get_order_number(), // REQUIRED - Merchant internal order number //
@@ -80,7 +92,7 @@ class PayFabric_Gateway_Request
             //Shipping Information
             "shippingCity" => $order->get_shipping_city(), // Optional - Customer city //
             "shippingCountry" => $order->get_shipping_country(), // Optional - Customer country code per ISO 3166-2 //
-            "customerId" => $order->get_customer_id(),
+            "customerId" => $customerId,
             "shippingEmail" => $order->get_billing_email(), // Optional - Customer email address, use the billing email as shipping email because there is no shipping email//
             "shippingAddress1" => $order->get_shipping_address_1(), // Optional - Customer address //
             "shippingAddress2" => $order->get_shipping_address_2(), // Optional - Customer address //
@@ -276,11 +288,23 @@ class PayFabric_Gateway_Request
         $jsUrl = $maxiPago->jsUrl;
         $return_url = $this->gateway->get_return_url($order);
 
+        if(!$customerId = get_current_user_id()){
+            $session_handler = WC()->session;
+            if ( ! $session_handler ) {
+                return '';
+            }
+            $cookie = $session_handler->get_session_cookie();
+            if ( ! $cookie ) {
+                return '';
+            }
+            $customerId = $cookie[0];
+        }
+
         if (2 == $this->gateway->api_payment_modes) {
             $data = array(
                 "Amount" => WC()->cart->total, // REQUIRED - Transaction amount in US format //
                 "Currency" => get_woocommerce_currency(),
-                "customerId" => get_current_user_id()// wp_get_current_user();
+                "customerId" => $customerId
             );
         } else {
             $data = $this->get_payfabric_gateway_post_args($order);

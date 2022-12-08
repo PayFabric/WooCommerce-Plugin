@@ -1,4 +1,8 @@
 #cashierDiv {
     max-width: 600px;
-    /*border: 1px solid gray;*/
 }
+
+.message div.woocommerce-error {
+    display: none;
+}
+

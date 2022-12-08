@@ -1,57 +1,62 @@
 <?php
 
-class payFabric_Builder extends payFabric_RequestBase {
+class payFabric_Builder extends payFabric_RequestBase
+{
 
     public $_data = array();
 
-    public function __construct($array) {
+    public function __construct($array)
+    {
         if (strlen($array["merchantId"]) > 0) {
             $this->merchantId = $array["merchantId"];
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'merchantId' cannot be null.");
         }
         if (strlen($array["merchantKey"]) > 0) {
             $this->merchantKey = $array["merchantKey"];
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'merchantKey' cannot be null.");
         }
     }
 
-    protected function setToken() {
+    protected function setToken()
+    {
         if (strlen($this->Audience) > 0) {
             $this->_data["Audience"] = $this->Audience;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Audience' cannot be null.");
         }
         if (strlen($this->Subject) > 0) {
             $this->_data["Subject"] = $this->Subject;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Subject' cannot be null.");
         }
     }
 
-    protected function setRefund(){
+    protected function setRefund()
+    {
         if (strlen($this->type) > 0) {
             $this->_data["Type"] = $this->type;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Type' cannot be null.");
         }
         if (isset($this->Amount) && is_numeric($this->Amount)) {
             $this->_data["Amount"] = $this->Amount;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Amount' is invalid.");
         }
         if (strlen($this->ReferenceKey) > 0) {
             $this->_data["ReferenceKey"] = $this->ReferenceKey;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'ReferenceKey' cannot be null.");
         }
     }
 
-    protected function setOrder() {
+    protected function setOrder()
+    {
         if (strlen($this->type) > 0) {
             $this->_data["Type"] = $this->type;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Type' cannot be null.");
         }
         if (strlen($this->id) > 0) {
@@ -59,12 +64,12 @@ class payFabric_Builder extends payFabric_RequestBase {
         }
         if (isset($this->Amount) && is_numeric($this->Amount)) {
             $this->_data["Amount"] = $this->Amount;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Amount' is invalid.");
         }
-        if (strlen($this->Currency) > 0 ) {
+        if (strlen($this->Currency) > 0) {
             $this->_data["Currency"] = $this->Currency;
-        }else{
+        } else {
             throw new InvalidArgumentException("[PayFabric Class] Field 'Currency' cannot be null.");
         }
         if (strlen($this->customerId) > 0) {
@@ -72,8 +77,9 @@ class payFabric_Builder extends payFabric_RequestBase {
         }
         $this->setAddress();
     }
-    
-    protected function setAddress() {
+
+    protected function setAddress()
+    {
         if (strlen($this->billingCity) > 0) {
             $this->_data['Document']["DefaultBillTo"]["City"] = $this->billingCity;
         }
@@ -131,7 +137,8 @@ class payFabric_Builder extends payFabric_RequestBase {
         }
     }
 
-    protected function setItens(){
+    protected function setItens()
+    {
         //set level2
         $this->_data['Document']['Head'] = array(
             array('Name' => 'InvoiceNumber', 'Value' => $this->referenceNum),
@@ -140,7 +147,7 @@ class payFabric_Builder extends payFabric_RequestBase {
         );
         //set level3
         $this->_data['Document']['Lines'] = array();
-        if(!empty($this->lineItems)) {
+        if (!empty($this->lineItems)) {
             foreach ($this->lineItems as $item) {
                 $this->_data['Document']['Lines'][]['Columns'] = array(
                     array('Name' => 'ItemProdCode', 'Value' => $item['product_code']),
@@ -160,6 +167,17 @@ class payFabric_Builder extends payFabric_RequestBase {
                 array('Name' => 'PluginVersion', "Value" => $this->pluginVersion)
             );
         }
+    }
+
+    protected function setParams()
+    {
+        if (strlen($this->Key) > 0) {
+            $this->_data["Key"] = $this->Key;
+        }
+        $this->setOrder();
+        //set level 2/3
+        $this->setItens();
+        unset($this->_data["Type"]);
     }
 
 }

@@ -14,16 +14,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 /*Define live and test gateway host */
-!defined('LIVEGATEWAY') && define('LIVEGATEWAY' , 'https://www.payfabric.com');
-!defined('TESTGATEWAY') && define('TESTGATEWAY' , 'https://sandbox.payfabric.com');
+!defined('LIVEGATEWAY') && define('LIVEGATEWAY', 'https://www.payfabric.com');
+!defined('TESTGATEWAY') && define('TESTGATEWAY', 'https://sandbox.payfabric.com');
 
 /*
 * Define log dir, severity level of logging mode and whether enable on-screen debug ouput.
 * PLEASE DO NOT USE "DEBUG" LOGGING MODE IN PRODUCTION
 */
-!defined('PayFabric_LOG_SEVERITY') && define('PayFabric_LOG_SEVERITY' , 'INFO');
-!defined('PayFabric_LOG_DIR') && define('PayFabric_LOG_DIR' , dirname(__FILE__).'/logs');
-!defined('PayFabric_DEBUG') && define('PayFabric_DEBUG' , false);
+!defined('PayFabric_LOG_SEVERITY') && define('PayFabric_LOG_SEVERITY', 'INFO');
+!defined('PayFabric_LOG_DIR') && define('PayFabric_LOG_DIR', dirname(__FILE__) . '/logs');
+!defined('PayFabric_DEBUG') && define('PayFabric_DEBUG', false);
 
 /*Define the control parameter value to determine whether the LOG functionality show or not */
 $show_log_field = '0';
@@ -42,7 +42,7 @@ $admin_fields_array['enabled'] = array(
     'desc_tip' => true,
     'default' => 'no'
 );
-$admin_fields_array['title'] =  array(
+$admin_fields_array['title'] = array(
     'title' => __('Title', 'payfabric-gateway-woocommerce'),
     'type' => 'text',
     'description' => __('The title which the user sees during checkout.', 'payfabric-gateway-woocommerce'),
@@ -50,7 +50,7 @@ $admin_fields_array['title'] =  array(
     'default' => __('PayFabric', 'payfabric-gateway-woocommerce')
 );
 
-$admin_fields_array['description'] =  array(
+$admin_fields_array['description'] = array(
     'title' => __('Description', 'payfabric-gateway-woocommerce'),
     'type' => 'textarea',
     'description' => __('The description which the user sees during checkout.', 'payfabric-gateway-woocommerce'),
@@ -58,7 +58,7 @@ $admin_fields_array['description'] =  array(
     'default' => __("Pay via PayFabric", 'payfabric-gateway-woocommerce')
 );
 
-$admin_fields_array['testmode'] =  array(
+$admin_fields_array['testmode'] = array(
     'title' => __('PayFabric test mode', 'payfabric-gateway-woocommerce'),
     'type' => 'checkbox',
     'label' => __('Enable test mode', 'payfabric-gateway-woocommerce'),
@@ -66,7 +66,7 @@ $admin_fields_array['testmode'] =  array(
     'desc_tip' => true,
     'default' => 'yes'
 );
-$admin_fields_array['advanced'] =  array(
+$admin_fields_array['advanced'] = array(
     'title' => __('Advanced options', 'payfabric-gateway-woocommerce'),
     'type' => 'title',
     'description' => '',
@@ -91,22 +91,25 @@ $admin_fields_array['api_password'] = array(
     'default' => ''
 );
 
-if($integration_show){
+if ($integration_show) {
     $admin_fields_array['api_payment_modes'] = array(
         'title' => __('Payment mode', 'payfabric-gateway-woocommerce'),
         'type' => 'select',
-        'description' => __('For an iframe mode, the gateway payment page will be inside the shopping site.
-            For a redirect mode, the shopping site will be redirected to the gateway payment page.'),
-        'desc_tip' => true,
-        'default' => 0,
+        'description' => sprintf(__('Payment Mode controls the presentation of the Hosted Payment Page (HPP):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<b>• Direct:</b> HPP shown directly on the checkout page, payment made when placing order. (A theme is required, see %sGuide%s).<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<b>• Iframe:</b> HPP is inside the shopping site page.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<b>• Redirect:</b> Shopping site redirects user to the HPP.'), '<a href="https://github.com/PayFabric/WooCommerce-Plugin#readme" target="_blank">', '</a>' ),
+        'desc_tip' => false,
+        'default' => 2,
         'options' => array(
-            __('Iframe', 'payfabric-gateway-woocommerce'),
-            __('Redirect', 'payfabric-gateway-woocommerce')
+            2 => __('Direct', 'payfabric-gateway-woocommerce'),
+            0 => __('Iframe', 'payfabric-gateway-woocommerce'),
+            1 => __('Redirect', 'payfabric-gateway-woocommerce')
         )
     );
 }
 
-if($show_auth_fields){
+if ($show_auth_fields) {
     //Purchase or Auth
     $admin_fields_array['api_payment_action'] = array(
         'title' => __('Payment action', 'payfabric-gateway-woocommerce'),
@@ -133,8 +136,8 @@ $admin_fields_array['api_success_status'] = array(
     )
 );
 
-if($show_log_field){
-    $admin_fields_array['log_mode'] =  array(
+if ($show_log_field) {
+    $admin_fields_array['log_mode'] = array(
         'title' => __('Logging', 'payfabric-gateway-woocommerce'),
         'type' => 'checkbox',
         'label' => __('Enable log debug', 'payfabric-gateway-woocommerce'),

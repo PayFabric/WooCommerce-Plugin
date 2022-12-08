@@ -1,9 +1,33 @@
 <?php
 
-class payments extends payFabric_ResponseBase {
+class payments extends payFabric_ResponseBase
+{
 
     private $request;
     public $response;
+
+    public function creditCardUpdate($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[PayFabric Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(payFabric_RequestBase::$logger)) {
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new payFabric_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/payment/api/transaction/update');
+            $req->setTransactionType("Update");
+            $this->response = $req->processRequest();
+        } catch (Exception $e) {
+            if (is_object(payFabric_RequestBase::$logger)) {
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
 
     /**
      * Performs a credit card auth
@@ -13,24 +37,24 @@ class payments extends payFabric_ResponseBase {
      * @param array $array
      * @throws BadMethodCallException
      */
-    public function creditCardAuth($array) {
+    public function creditCardAuth($array)
+    {
         try {
-            if (!is_array($array)) { 
-            	throw new BadMethodCallException('[PayFabric Class] Method '.__METHOD__.' must receive array as input');
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[PayFabric Class] Method ' . __METHOD__ . ' must receive array as input');
             }
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
             $this->request = $array;
             $req = new payFabric_Request($this->credentials);
             $req->setVars($this->request);
-            $req->setEndpoint($this->host.'/payment/api/transaction/create');
+            $req->setEndpoint($this->host . '/payment/api/transaction/create');
             $req->setTransactionType("Authorization");
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -38,28 +62,28 @@ class payments extends payFabric_ResponseBase {
 
     /**
      * Performs a credit card capture
-     * 
+     *
      * Capturing a transaction confirms and completes the order.
-     * 
+     *
      * @param string $key
      * @throws BadMethodCallException
      */
-    public function creditCardCapture($key) {
+    public function creditCardCapture($key)
+    {
         try {
             if (empty($key)) {
-            	throw new BadMethodCallException('[PayFabric Class] Method '.__METHOD__.' must receive array as input');
+                throw new BadMethodCallException('[PayFabric Class] Method ' . __METHOD__ . ' must receive array as input');
             }
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
 
             $req = new payFabric_Request($this->credentials);
-            $req->setEndpoint($this->host.'/payment/api/reference/' .$key. '?trxtype=Ship');
+            $req->setEndpoint($this->host . '/payment/api/reference/' . $key . '?trxtype=Ship');
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -67,34 +91,34 @@ class payments extends payFabric_ResponseBase {
 
     /**
      * Performs a credit card sale
-     * 
+     *
      * A Sale transaction combines the  authorization  and the
      * capture in a single request. When performing a Sale
      * PayFabric! sends the credit card for authorization and
      * immediately captures that transaction, if approved.
      * The response sent is final.
-     * 
+     *
      * @param array $array
      * @throws BadMethodCallException
      */
-    public function creditCardSale($array) {
+    public function creditCardSale($array)
+    {
         try {
-            if (!is_array($array)) { 
-            	throw new BadMethodCallException('[PayFabric Class] Method '.__METHOD__.' must receive array as input');
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[PayFabric Class] Method ' . __METHOD__ . ' must receive array as input');
             }
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
             $this->request = $array;
             $req = new payFabric_Request($this->credentials);
             $req->setVars($this->request);
-            $req->setEndpoint($this->host.'/payment/api/transaction/create');
+            $req->setEndpoint($this->host . '/payment/api/transaction/create');
             $req->setTransactionType("Sale");
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -108,21 +132,21 @@ class payments extends payFabric_ResponseBase {
      * @param array $array
      * @throws BadMethodCallException
      */
-    public function token($array) {
+    public function token($array)
+    {
         try {
             if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
             $this->request = $array;
             $req = new payFabric_Request($this->credentials);
             $req->setVars($this->request);
-            $req->setEndpoint($this->host.'/payment/api/jwt/create');
+            $req->setEndpoint($this->host . '/payment/api/jwt/create');
             $req->setTransactionType("Token");
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -134,18 +158,18 @@ class payments extends payFabric_ResponseBase {
      * @param string $key
      * @throws BadMethodCallException
      */
-    public function retrieveTransaction($key) {
+    public function retrieveTransaction($key)
+    {
         try {
             if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
             $req = new payFabric_Request($this->credentials);
-            $req->setEndpoint($this->host.'/payment/api/transaction/'.$key);
+            $req->setEndpoint($this->host . '/payment/api/transaction/' . $key);
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-                payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -153,29 +177,29 @@ class payments extends payFabric_ResponseBase {
 
     /**
      * Performs a credit card void
-     * 
+     *
      * A transaction can be Voided until the closing of the
-     * final batch of the day, allowing the Merchant to cancel 
+     * final batch of the day, allowing the Merchant to cancel
      * a transaction before any funds change hands.
-     * 
+     *
      * @param string $key
      * @throws BadMethodCallException
      */
-    public function creditCardVoid($key) {
+    public function creditCardVoid($key)
+    {
         try {
             if (empty($key)) {
-            	throw new BadMethodCallException('[PayFabric Class] Method '.__METHOD__.' must receive array as input');
+                throw new BadMethodCallException('[PayFabric Class] Method ' . __METHOD__ . ' must receive array as input');
             }
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
             $req = new payFabric_Request($this->credentials);
-            $req->setEndpoint($this->host.'/payment/api/reference/' .$key. '?trxtype=Void');
+            $req->setEndpoint($this->host . '/payment/api/reference/' . $key . '?trxtype=Void');
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -183,37 +207,37 @@ class payments extends payFabric_ResponseBase {
 
     /**
      * Performs a credit card refund
-     * 
+     *
      * A  Return  (or  Refund) is the reversal of a credit
      * card transaction, where the funds are taken from the
      * Merchant and given back to the Card Holder. This is
      * a financial operation that usually takes a few days
      * to be completed.
-     * 
+     *
      * @param array $array
      * @throws BadMethodCallException
      */
-    public function creditCardRefund($array) {
+    public function creditCardRefund($array)
+    {
         try {
-            if (!is_array($array)) { 
-            	throw new BadMethodCallException('[PayFabric Class] Method '.__METHOD__.' must receive array as input');
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[PayFabric Class] Method ' . __METHOD__ . ' must receive array as input');
             }
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logNotice('Calling method '.__METHOD__);
+                payFabric_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
             }
             $this->request = $array;
             $req = new payFabric_Request($this->credentials);
             $req->setVars($this->request);
-            $req->setEndpoint($this->host.'/payment/api/transaction/process');
+            $req->setEndpoint($this->host . '/payment/api/transaction/process');
             $req->setTransactionType("Refund");
             $this->response = $req->processRequest();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (is_object(payFabric_RequestBase::$logger)) {
-            	payFabric_RequestBase::$logger->logCrit($e->getMessage()." in ".$e->getFile()." on line ".$e->getLine());
+                payFabric_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
     }
-    
+
 }

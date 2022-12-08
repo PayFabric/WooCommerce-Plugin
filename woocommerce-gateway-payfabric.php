@@ -2,8 +2,10 @@
 
 /**
  * Plugin Name: WooCommerce PayFabric Gateway
+ * Plugin URI: https://github.com/PayFabric/WooCommerce-Plugin
  * Description: WooCommerce PayFabric Gateway integration.
- * Version: 1.1.0
+ * Version: 2.0.0
+ * Author: PayFabric
  */
 
 /**
@@ -41,14 +43,15 @@ function init_payfabric_gateway()
      * @since    1.0.0
      */
     require plugin_dir_path(__FILE__) . 'classes/class-payfabric-gateway-woocommerce.php';
-    new Payfabric_Gateway_Woocommerce();
+    Payfabric_Gateway_Woocommerce::get_instance();
 }
 
 // Add custom action links
-add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'payfabric_gateway_action_links' );
-function payfabric_gateway_action_links( $links ) {
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'payfabric_gateway_action_links');
+function payfabric_gateway_action_links($links)
+{
     $plugin_links = array(
-        '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=payfabric' ) . '">' . __( 'Settings', 'payfabric' ) . '</a>',
+        '<a href="' . admin_url('admin.php?page=wc-settings&tab=checkout&section=payfabric') . '">' . __('Settings', 'payfabric') . '</a>',
     );
-    return array_merge( $plugin_links, $links );
+    return array_merge($plugin_links, $links);
 }

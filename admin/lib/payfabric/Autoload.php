@@ -5,12 +5,12 @@
 // 
 //     require_once "<path>/payfabric/Autoload.php"
 
-function payFabric_Autoload($className) {
+function payFabric_Autoload($className)
+{
     if ($className === "KLogger") {
-        $fileName = $className.".php";
-    }
-    elseif(strtolower(substr($className, 0, 9)) == 'payfabric') {
-        $fileName = substr($className, 10).".php";
+        $fileName = $className . ".php";
+    } elseif (strtolower(substr($className, 0, 9)) == 'payfabric') {
+        $fileName = substr($className, 10) . ".php";
     }
     !empty($fileName) && require $fileName;
 }

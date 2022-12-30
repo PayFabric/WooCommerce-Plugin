@@ -195,10 +195,10 @@ class PayFabric_Gateway_Request
         $order_status = $order->get_status();
         if ($status == "approved") {
             if ($transactionState == "pending capture") {
-                if ($order_status != 'on-hold') {
+                if ($order_status != 'processing') {
                     //Auth transaction
-                    update_post_meta($order->get_id(), '_payment_status', 'on-hold');
-                    $order->update_status('on-hold', sprintf(__('Card payment authorized.', 'payfabric-gateway-woocommerce')));
+                    update_post_meta($order->get_id(), '_payment_status', 'processing');
+                    $order->update_status('processing', sprintf(__('Card payment authorized.', 'payfabric-gateway-woocommerce')));
 
                     // Reduce stock levels
                     wc_reduce_stock_levels($order_id);

@@ -104,9 +104,9 @@ class Payfabric_Gateway_Woocommerce
         add_action('woocommerce_admin_order_data_after_shipping_address', array($plugin_admin, 'show_evo_transaction_id'));//Customize admin order detail page to show transaction ID
         add_action('woocommerce_api_payfabric', array($plugin_admin, 'handle_call_back'));//Payment response handler if a post request
 
-        add_filter('woocommerce_order_actions', array($plugin_admin, 'add_capture_charge_order_action'));//add the Capture Online Order actions
+        add_filter('woocommerce_order_actions', array($plugin_admin, 'add_capture_charge_order_action'), 10, 2);//add the Capture Online Order actions
         add_action('woocommerce_order_action_payfabric_capture_charge', array($plugin_admin, 'maybe_capture_charge'));//Capture when the Capture Online is submitted
-        add_filter('woocommerce_order_actions', array($plugin_admin, 'add_void_charge_order_action'));//add the VOID Online Order actions
+        add_filter('woocommerce_order_actions', array($plugin_admin, 'add_void_charge_order_action'), 10, 2);//add the VOID Online Order actions
         add_action('woocommerce_order_action_payfabric_void_charge', array($plugin_admin, 'maybe_void_charge'));//Void when the Void Online is submitted
     }
 

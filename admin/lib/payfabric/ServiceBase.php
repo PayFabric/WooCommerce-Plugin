@@ -38,6 +38,7 @@ class payFabric_ServiceBase
     public function setEnvironment($param = null)
     {
         try {
+            $param = (string) $param;
             if (strtoupper($param) == 'TEST' || $param) {
                 payFabric_RequestBase::setSslVerify(false);
                 $this->host = TESTGATEWAY;

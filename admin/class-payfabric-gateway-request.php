@@ -262,7 +262,19 @@ class PayFabric_Gateway_Request
         $payfabric_form[] = 'function handleResult(data) {';
         $payfabric_form[] = 'if(data.RespStatus == "Approved"){';
         $payfabric_form[] = 'document.getElementById("TrxKey").value = data.TrxKey;';
-        $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 3000); }';
+        // Preserve query parameters from the redirect URL in the submitted form.
+        $payfabric_form[] = 'const form = document.getElementById("payForm");';
+        $payfabric_form[] = 'const actionUrl = new URL(form.action);';
+        $payfabric_form[] = 'actionUrl.searchParams.forEach((value, name) => {';
+        $payfabric_form[] = 'if (!Array.from(form.elements).some(input => input.name === name)) {';
+        $payfabric_form[] = 'const input = document.createElement("input");';
+        $payfabric_form[] = 'input.type = "hidden";';
+        $payfabric_form[] = 'input.name = name;';
+        $payfabric_form[] = 'input.value = value;';
+        $payfabric_form[] = 'form.appendChild(input);';
+        $payfabric_form[] = '}';
+        $payfabric_form[] = '});';
+        $payfabric_form[] = 'HTMLFormElement.prototype.submit.call(form);}else{ setTimeout(function(){location.reload();}, 3000); }';
         $payfabric_form[] = '}';
         $payfabric_form[] = 'new payfabricpayments({';
         foreach ($payfabric_cashier_args as $key => $value) {

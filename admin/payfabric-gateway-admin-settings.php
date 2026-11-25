@@ -39,7 +39,7 @@ $admin_fields_array['enabled'] = array(
     'type' => 'checkbox',
     'label' => __('Enable PayFabric gateway', 'payfabric-gateway-woocommerce'),
     'description' => __('Enable or disable the gateway.', 'payfabric-gateway-woocommerce'),
-    'desc_tip' => true,
+    'desc_tip' => false,
     'default' => 'no'
 );
 $admin_fields_array['title'] = array(
@@ -63,7 +63,7 @@ $admin_fields_array['testmode'] = array(
     'type' => 'checkbox',
     'label' => __('Enable test mode', 'payfabric-gateway-woocommerce'),
     'description' => __('Enable or disable the test mode for the gateway to test the payment method.', 'payfabric-gateway-woocommerce'),
-    'desc_tip' => true,
+    'desc_tip' => false,
     'default' => 'yes'
 );
 $admin_fields_array['advanced'] = array(

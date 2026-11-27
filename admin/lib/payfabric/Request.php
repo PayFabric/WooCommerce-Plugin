@@ -28,7 +28,6 @@ class payFabric_Request extends payFabric_Builder
             self::$logger->logInfo('Sending data to ' . $this->endpoint);
         }
         $curlInfo = curl_getinfo($curl);
-        curl_close($curl);
         if (payFabric_RequestBase::$debug == true) {
             $this->printDebug($curlInfo);
         }

@@ -40,6 +40,12 @@ class PayFabric extends WC_Payment_Gateway
      * @var      string $version The current version of this plugin.
      */
     public $version;
+    public $testmode = false;
+    public $api_merchant_id = '';
+    public $api_password = '';
+    public $api_success_status = '';
+    public $api_payment_action = '';
+    public $api_payment_modes = '';
 
     /**
      * Initialize the class and set its properties.
@@ -50,7 +56,7 @@ class PayFabric extends WC_Payment_Gateway
     {
 
         $this->plugin_name = 'PayFabric-gateway-woocommerce';
-        $this->version = '2.0.0';
+        $this->version = '2.0.1';
 
         $this->id = 'payfabric';
         $this->method_title = __('PayFabric', 'payfabric-gateway-woocommerce');
@@ -235,10 +241,10 @@ class PayFabric extends WC_Payment_Gateway
     public function show_evo_transaction_id($order)
     {
         if($order->get_payment_method() == 'payfabric') {
-            $transaction_id = get_post_meta($order->get_id(), '_transaction_id', true);
+            $transaction_id = $order->get_transaction_id();
             if (!empty($transaction_id)) {
                 echo '<h3>' . $this->method_title . ' ID </h3>';
-                echo "<p>$transaction_id</p>";
+                echo '<p>' . esc_html($transaction_id) . '</p>';
             }
         }
     }
@@ -251,7 +257,7 @@ class PayFabric extends WC_Payment_Gateway
             if (!$order) {
                 return new WP_Error('invalid_order', 'Invalid Order ID');
             }
-            $transaction_id = get_post_meta($order->get_id(), '_transaction_id', true);
+            $transaction_id = $order->get_transaction_id();
             if (!$transaction_id) {
                 return new WP_Error('invalid_order', 'Invalid transaction ID');
             }
@@ -291,10 +297,9 @@ class PayFabric extends WC_Payment_Gateway
     public function capture_payment($order_id)
     {
         $order = wc_get_order($order_id);
-        if ($order->get_payment_method() == 'payfabric') {
-            $merchantTxId = get_post_meta($order->get_id(), '_transaction_id', true);
-            $old_wc = version_compare(WC_VERSION, '3.0', '<');
-            $payment_status = $old_wc ? get_post_meta($order_id, '_payment_status', true) : $order->get_meta('_payment_status', true);
+        if ($order && $order->get_payment_method() == 'payfabric') {
+            $merchantTxId = $order->get_transaction_id();
+            $payment_status = $order->get_meta('_payment_status', true);
             if ($merchantTxId && 'on-hold' == $payment_status) {
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 $amount = $order->get_total();
@@ -320,18 +325,14 @@ class PayFabric extends WC_Payment_Gateway
     }
 
     // add a drop down option of Capture Online button for the Order actions area
-    public function add_capture_charge_order_action($actions)
+    public function add_capture_charge_order_action($actions, $order = null)
     {
-        if (!isset($_REQUEST['post'])) {
+        if (!$order instanceof WC_Order) {
             return $actions;
         }
 
-        $order = wc_get_order($_REQUEST['post']);
-
-        $old_wc = version_compare(WC_VERSION, '3.0', '<');
-        $order_id = $old_wc ? $order->id : $order->get_id();
-        $payment_method = $old_wc ? $order->payment_method : $order->get_payment_method();
-        $payment_status = $old_wc ? get_post_meta($order_id, '_payment_status', true) : $order->get_meta('_payment_status', true);
+        $payment_method = $order->get_payment_method();
+        $payment_status = $order->get_meta('_payment_status', true);
 
         // exit if the order wasn't paid for with this gateway or the order has paid with Purchase action
         if ('payfabric' !== strtolower($payment_method) || 'on-hold' !== $payment_status) {
@@ -348,18 +349,14 @@ class PayFabric extends WC_Payment_Gateway
     }
 
     // add a drop down option of VOID Online button for the Order actions area
-    public function add_void_charge_order_action($actions)
+    public function add_void_charge_order_action($actions, $order = null)
     {
-        if (!isset($_REQUEST['post'])) {
+        if (!$order instanceof WC_Order) {
             return $actions;
         }
 
-        $order = wc_get_order($_REQUEST['post']);
-
-        $old_wc = version_compare(WC_VERSION, '3.0', '<');
-        $order_id = $old_wc ? $order->id : $order->get_id();
-        $payment_method = $old_wc ? $order->payment_method : $order->get_payment_method();
-        $payment_status = $old_wc ? get_post_meta($order_id, '_payment_status', true) : $order->get_meta('_payment_status', true);
+        $payment_method = $order->get_payment_method();
+        $payment_status = $order->get_meta('_payment_status', true);
 
         // exit if the order wasn't paid for with this gateway or the order has paid with Purchase action
         if ('payfabric' !== $payment_method || 'on-hold' !== $payment_status) {
@@ -383,10 +380,9 @@ class PayFabric extends WC_Payment_Gateway
     public function cancel_payment($order_id)
     {
         $order = wc_get_order($order_id);
-        if ($order->get_payment_method() == 'payfabric') {
-            $merchantTxId = get_post_meta($order->get_id(), '_transaction_id', true);
-            $old_wc = version_compare(WC_VERSION, '3.0', '<');
-            $payment_status = $old_wc ? get_post_meta($order_id, '_payment_status', true) : $order->get_meta('_payment_status', true);
+        if ($order && $order->get_payment_method() == 'payfabric') {
+            $merchantTxId = $order->get_transaction_id();
+            $payment_status = $order->get_meta('_payment_status', true);
             if ($merchantTxId && 'on-hold' == $payment_status) {
                 $payfabric_request = new PayFabric_Gateway_Request($this);
                 $payfabric_request->do_void_process($this->testmode, $order, $merchantTxId);

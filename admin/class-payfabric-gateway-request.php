@@ -192,12 +192,15 @@ class PayFabric_Gateway_Request
         $transactionState = strtolower($result->TransactionState);//Sale: Pending Settlement, Auth: Pending Capture
         $order_id = $result->TrxUserDefine1;
         $order = wc_get_order($order_id);
+        if (!$order) {
+            return false;
+        }
         $order_status = $order->get_status();
         if ($status == "approved") {
             if ($transactionState == "pending capture") {
                 if ($order_status != 'on-hold') {
                     //Auth transaction
-                    update_post_meta($order->get_id(), '_payment_status', 'on-hold');
+                    $order->update_meta_data('_payment_status', 'on-hold');
                     $order->update_status('on-hold', sprintf(__('Card payment authorized.', 'payfabric-gateway-woocommerce')));
 
                     // Reduce stock levels
@@ -206,8 +209,8 @@ class PayFabric_Gateway_Request
             } elseif (in_array($transactionState, array('pending settlement', 'settled', 'captured'))) {
                 if ($order_status != 'completed' && $order_status != 'processing') {
                     //Purchase transaction
-                    update_post_meta($order->get_id(), '_payment_status', 'completed');
-                    $order->payment_complete();
+                    $order->update_meta_data('_payment_status', 'completed');
+                    $order->payment_complete($merchantTxId);
                     if ($this->gateway->api_success_status == '1') {
                         $order->update_status('completed', sprintf(__('Card payment completed.', 'payfabric-gateway-woocommerce')));
                     }
@@ -238,7 +241,8 @@ class PayFabric_Gateway_Request
         }
 
         //save the EVO transaction ID into the database
-        update_post_meta($order->get_id(), '_transaction_id', $merchantTxId);
+        $order->set_transaction_id($merchantTxId);
+        $order->save();
     }
 
     //Include payfabric gateway js sdk in HTML
@@ -258,7 +262,19 @@ class PayFabric_Gateway_Request
         $payfabric_form[] = 'function handleResult(data) {';
         $payfabric_form[] = 'if(data.RespStatus == "Approved"){';
         $payfabric_form[] = 'document.getElementById("TrxKey").value = data.TrxKey;';
-        $payfabric_form[] = 'document.getElementById("payForm").submit();}else{ setTimeout(function(){location.reload();}, 3000); }';
+        // Preserve query parameters from the redirect URL in the submitted form.
+        $payfabric_form[] = 'const form = document.getElementById("payForm");';
+        $payfabric_form[] = 'const actionUrl = new URL(form.action);';
+        $payfabric_form[] = 'actionUrl.searchParams.forEach((value, name) => {';
+        $payfabric_form[] = 'if (!Array.from(form.elements).some(input => input.name === name)) {';
+        $payfabric_form[] = 'const input = document.createElement("input");';
+        $payfabric_form[] = 'input.type = "hidden";';
+        $payfabric_form[] = 'input.name = name;';
+        $payfabric_form[] = 'input.value = value;';
+        $payfabric_form[] = 'form.appendChild(input);';
+        $payfabric_form[] = '}';
+        $payfabric_form[] = '});';
+        $payfabric_form[] = 'HTMLFormElement.prototype.submit.call(form);}else{ setTimeout(function(){location.reload();}, 3000); }';
         $payfabric_form[] = '}';
         $payfabric_form[] = 'new payfabricpayments({';
         foreach ($payfabric_cashier_args as $key => $value) {
@@ -444,15 +460,10 @@ class PayFabric_Gateway_Request
         if (strtolower($result->Status) == 'approved') {
             $order->add_order_note(sprintf(__('Capture charge complete (Amount: %s)'), $amount));
             $order->update_meta_data('_payment_status', 'completed');
-            $order->payment_complete();
+            $order->payment_complete($result->TrxKey);
             if ($this->gateway->api_success_status == '1') {
                 $order->update_status('completed', sprintf(__('Card payment completed.', 'payfabric-gateway-woocommerce')));
             }
-            $order_id = $order->get_id();
-            //update the transaction ID with the new capture transaction ID for refund use
-            update_post_meta($order_id, '_transaction_id', $result->TrxKey);
-            do_action('woocommerce_payment_complete', $order_id);
-            $order->save();
             return true;
         } else {
             $order->add_order_note(!empty($result->Message) ? $result->Message : __('Capture error!'));

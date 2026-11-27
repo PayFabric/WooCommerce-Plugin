@@ -1,10 +1,12 @@
 <?php
 
+#[\AllowDynamicProperties]
 class payFabric_RequestBase
 {
 
     protected $version = '1.0.0';
     protected $timeout = 60;
+    public $request = array();
     protected static $sslVerifyPeer = 0;
     protected static $sslVerifyHost = 2;
     public static $logger;
@@ -199,8 +201,18 @@ class payFabric_RequestBase
     /**
      * @return mixed
      */
-    public function __get($var)
+    public function __get($key)
     {
-        return null;
+        return $this->request[$key] ?? '';
+    }
+
+    public function __set($key, $value)
+    {
+        $this->request[$key] = $value;
+    }
+
+    public function __isset($key)
+    {
+        return isset($this->request[$key]);
     }
 }
